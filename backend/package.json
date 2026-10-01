@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "postinstall": "prisma generate",
+    "build": "prisma generate && prisma db push && tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "db:generate": "prisma generate",
