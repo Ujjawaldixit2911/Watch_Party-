@@ -80,8 +80,8 @@ async function bootstrap() {
   // WebSocket Server Setup
   const io = setupWebSocket(server, roomManager, env.CLIENT_URL);
 
-  server.listen(env.PORT, () => {
-    console.log(`🚀 WatchParty Server running on http://localhost:${env.PORT}`);
+  server.listen(env.PORT, '0.0.0.0', () => {
+    console.log(`🚀 WatchParty Server running on http://0.0.0.0:${env.PORT}`);
     console.log(`📡 WebSocket ready. Environment: ${env.NODE_ENV}`);
   });
 
@@ -101,6 +101,9 @@ async function bootstrap() {
 }
 
 bootstrap().catch((err) => {
-  console.error('Fatal startup error:', err);
+  console.error('❌ Fatal startup error:', err);
+  if (err instanceof Error && err.stack) {
+    console.error(err.stack);
+  }
   process.exit(1);
 });
