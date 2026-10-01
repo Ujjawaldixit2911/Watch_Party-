@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id             String        @id @default(uuid())
+  code           String        @unique
+  name           String?
+  hostId         String
+  currentVideoId String?
+  status         String        @default("ACTIVE") // ACTIVE | CLOSED
+  createdAt      DateTime      @default(now())
+  closedAt       DateTime?
+  participants   Participant[]
+
+  @@index([code])
+}
+
+model Participant {
+  id               String    @id @default(uuid())
+  roomId           String
+  username         String
+  role             String    @default("PARTICIPANT") // HOST | MODERATOR | PARTICIPANT
+  sessionTokenHash String
+  joinedAt         DateTime  @default(now())
+  leftAt           DateTime?
+  removedAt        DateTime?
+  room             Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([sessionTokenHash])
+  @@unique([roomId, username])
+}
