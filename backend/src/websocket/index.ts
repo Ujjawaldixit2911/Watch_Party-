@@ -13,9 +13,15 @@ export function setupWebSocket(
   roomManager: RoomManager,
   clientUrl: string
 ): Server<ClientToServerEvents, ServerToClientEvents> {
+  const cleanClientUrl = clientUrl.replace(/\/+$/, '');
+  const origins =
+    clientUrl === '*'
+      ? '*'
+      : [cleanClientUrl, `${cleanClientUrl}/`, 'http://localhost:5173', 'http://127.0.0.1:5173'];
+
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
     cors: {
-      origin: clientUrl === '*' ? '*' : [clientUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: origins,
       methods: ['GET', 'POST'],
       credentials: true,
     },

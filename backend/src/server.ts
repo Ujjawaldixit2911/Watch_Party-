@@ -20,14 +20,20 @@ async function bootstrap() {
     })
   );
 
-  const allowedOrigins = [env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'];
+  const cleanClientUrl = env.CLIENT_URL.replace(/\/+$/, '');
+  const allowedOrigins = [
+    cleanClientUrl,
+    `${cleanClientUrl}/`,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+  ];
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV === 'development') {
+        if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV === 'development' || env.CLIENT_URL === '*') {
           callback(null, true);
         } else {
-          callback(new Error('Blocked by CORS'));
+          callback(new Error(`Blocked by CORS: ${origin}`));
         }
       },
       credentials: true,
