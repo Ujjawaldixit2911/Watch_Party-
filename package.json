@@ -8,8 +8,9 @@
     "frontend"
   ],
   "scripts": {
-    "postinstall": "npm run db:generate --workspace=@watchparty/backend",
+    "postinstall": "cross-env DATABASE_URL=\"file:./dev.db\" npm run db:generate --workspace=@watchparty/backend",
     "start": "npm run start --workspace=@watchparty/backend",
+    "build:frontend": "npm run build --workspace=@watchparty/shared && npm run build --workspace=@watchparty/frontend",
     "build:backend": "npm run build --workspace=@watchparty/shared && npm run db:generate --workspace=@watchparty/backend && npm run db:push --workspace=@watchparty/backend && npm run build --workspace=@watchparty/backend",
     "dev": "concurrently -k -p \"[{name}]\" -n \"BACKEND,FRONTEND\" -c \"blue.bold,green.bold\" \"npm run dev --workspace=@watchparty/backend\" \"npm run dev --workspace=@watchparty/frontend\"",
     "build": "npm run build --workspace=@watchparty/shared && npm run build --workspace=@watchparty/backend && npm run build --workspace=@watchparty/frontend",
