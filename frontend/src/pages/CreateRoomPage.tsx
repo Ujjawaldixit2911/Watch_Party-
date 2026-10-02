@@ -11,7 +11,6 @@ import {
   Radio,
   Music,
   Lock,
-  Headphones,
   Zap,
 } from 'lucide-react';
 import { useRoom } from '../context/RoomContext';
@@ -52,10 +51,14 @@ export const CreateRoomPage: React.FC = () => {
             Back to Home
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-purple-600 flex items-center justify-center text-white">
-              <Headphones className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-md">
+              <img
+                src="/assets/3d_dj_logo.jpg"
+                alt="WatchParty Logo"
+                className="w-full h-full object-cover rounded-full"
+              />
             </div>
-            <span className="text-xs font-bold text-zinc-300 font-heading">BeatsLink</span>
+            <span className="text-xs font-bold text-zinc-300 font-heading">WatchParty</span>
           </div>
         </div>
 
@@ -74,7 +77,7 @@ export const CreateRoomPage: React.FC = () => {
               Please Log In First
             </h2>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              To host a room, manage synchronized playback, and safeguard your media locker, you must sign in with your BeatsLink account.
+              To host a room, manage synchronized playback, and safeguard your media locker, you must sign in with your WatchParty account.
             </p>
           </div>
 

@@ -8,7 +8,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  Headphones,
   Zap,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -79,11 +78,15 @@ export const LoginPage: React.FC = () => {
           Back to Home
         </Link>
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
-            <Headphones className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30">
+            <img
+              src="/assets/3d_dj_logo.jpg"
+              alt="WatchParty Logo"
+              className="w-full h-full object-cover rounded-full"
+            />
           </div>
           <span className="text-xs font-bold tracking-tight font-heading text-white">
-            Beats<span className="text-purple-400">Link</span>
+            Watch<span className="text-purple-400">Party</span>
           </span>
         </Link>
       </div>
@@ -93,10 +96,10 @@ export const LoginPage: React.FC = () => {
         <div className="space-y-2 text-center sm:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>Suno Dil Ki • Stream Together</span>
+            <span>Zero Latency • Stream In Sync</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-heading tracking-tight">
-            Sign In to BeatsLink
+            Sign In to WatchParty
           </h1>
           <p className="text-xs text-zinc-400">
             {redirectPath === '/create'

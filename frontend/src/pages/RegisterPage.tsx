@@ -9,7 +9,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  Headphones,
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -93,11 +92,15 @@ export const RegisterPage: React.FC = () => {
           Back to Home
         </Link>
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
-            <Headphones className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30">
+            <img
+              src="/assets/3d_dj_logo.jpg"
+              alt="WatchParty Logo"
+              className="w-full h-full object-cover rounded-full"
+            />
           </div>
           <span className="text-xs font-bold tracking-tight font-heading text-white">
-            Beats<span className="text-purple-400">Link</span>
+            Watch<span className="text-purple-400">Party</span>
           </span>
         </Link>
       </div>

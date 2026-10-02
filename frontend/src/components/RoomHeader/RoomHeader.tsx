@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Headphones,
   Share2,
   LogOut,
   Power,
@@ -60,17 +59,21 @@ export const RoomHeader: React.FC = () => {
             <Link
               to="/"
               className="flex items-center gap-2 group flex-shrink-0"
-              title="BeatsLink Home"
+              title="WatchParty Home"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform">
-                <Headphones className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-purple-500 via-indigo-500 to-pink-500 shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform">
+                <img
+                  src="/assets/3d_dj_logo.jpg"
+                  alt="WatchParty 3D DJ Logo"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
             </Link>
 
             <div className="min-w-0 flex items-center gap-2.5">
               <div>
                 <h1 className="text-sm sm:text-base font-bold text-white truncate max-w-[140px] sm:max-w-xs font-heading">
-                  {room.name || 'BeatsLink Party'}
+                  {room.name || 'WatchParty Room'}
                 </h1>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <button
@@ -104,7 +107,7 @@ export const RoomHeader: React.FC = () => {
 
             {/* Profile link button if logged in */}
             {user && (
-              <Link to="/profile" title="View BeatsLink Profile" className="hidden md:flex">
+              <Link to="/profile" title="View WatchParty Profile" className="hidden md:flex">
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-700/80 hover:border-purple-500/60 transition-all text-xs text-zinc-300">
                   <div className="w-4 h-4 rounded-full bg-purple-600 flex items-center justify-center text-[9px] font-bold text-white">
                     {user.name.charAt(0)}

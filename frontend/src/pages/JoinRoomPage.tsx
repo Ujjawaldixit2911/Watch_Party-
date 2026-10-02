@@ -6,7 +6,6 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
-  Headphones,
   Sparkles,
 } from 'lucide-react';
 import { useRoom } from '../context/RoomContext';
@@ -46,7 +45,7 @@ export const JoinRoomPage: React.FC = () => {
       checkRoomApi(code)
         .then((res: CheckRoomResponse) => {
           if (res.exists) {
-            setRoomStatusMessage(`Active Party: ${res.roomName || 'BeatsLink Room'}`);
+            setRoomStatusMessage(`Active Party: ${res.roomName || 'WatchParty Room'}`);
             setError('');
           } else {
             setRoomStatusMessage(null);
@@ -107,10 +106,10 @@ export const JoinRoomPage: React.FC = () => {
           Back to Home
         </Link>
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-600/30">
-            <Headphones className="w-3.5 h-3.5" />
+          <div className="w-6 h-6 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-md">
+            <img src="/assets/3d_dj_logo.jpg" alt="WatchParty" className="w-full h-full object-cover rounded-full" />
           </div>
-          <span className="text-xs font-bold text-zinc-300 font-heading">BeatsLink</span>
+          <span className="text-xs font-bold text-zinc-300 font-heading">WatchParty</span>
         </div>
       </div>
 

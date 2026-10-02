@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronUp,
-  Headphones,
   Sliders,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -22,21 +21,21 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     category: 'sync',
-    question: 'How does BeatsLink real-time synchronization work?',
+    question: 'How does WatchParty real-time synchronization work?',
     answer:
-      'BeatsLink uses server-authoritative monotonic timestamps with periodic clock drift calculations. When the Host or Moderator plays, pauses, seeks, or changes a song/video, the state is instantly dispatched to all connected clients. If a client drifts by more than 0.75 seconds, smooth micro-seeks bring it into exact millisecond lockstep.',
+      'WatchParty uses server-authoritative monotonic timestamps with periodic clock drift calculations. When the Host or Moderator plays, pauses, seeks, or changes a song/video, the state is instantly dispatched to all connected clients. If a client drifts by more than 0.75 seconds, smooth micro-seeks bring it into exact millisecond lockstep.',
   },
   {
     category: 'host',
     question: 'Do I need an account to create or host a watch party room?',
     answer:
-      'Yes! To maintain room safety, prevent spam, and link your private audio/video locker, BeatsLink requires hosts to log in first before creating rooms. Guests joining via an invite code or link can join immediately with their display name.',
+      'Yes! To maintain room safety, prevent spam, and link your private audio/video locker, WatchParty requires hosts to log in first before creating rooms. Guests joining via an invite code or link can join immediately with their display name.',
   },
   {
     category: 'audio',
     question: 'Can I play songs like Despacito, Lo-Fi, and custom YouTube links?',
     answer:
-      'Absolutely! BeatsLink comes preloaded with popular default tracks like Luis Fonsi - Despacito ft. Daddy Yankee, Rick Astley, and Lo-Fi Study Streams in your Audio Locker. You can also paste any valid YouTube video URL or 11-character video ID at any moment during the party.',
+      'Absolutely! WatchParty comes preloaded with popular default tracks like Luis Fonsi - Despacito ft. Daddy Yankee, Rick Astley, and Lo-Fi Study Streams in your Audio Locker. You can also paste any valid YouTube video URL or 11-character video ID at any moment during the party.',
   },
   {
     category: 'host',
@@ -80,11 +79,15 @@ export const HelpPage: React.FC = () => {
             </Link>
             <div className="h-4 w-[1px] bg-slate-800" />
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
-                <Headphones className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30">
+                <img
+                  src="/assets/3d_dj_logo.jpg"
+                  alt="WatchParty Logo"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
               <span className="text-sm font-bold tracking-tight font-heading text-white">
-                Beats<span className="text-purple-400">Link</span> Help Manual
+                Watch<span className="text-purple-400">Party</span> Help Manual
               </span>
             </div>
           </div>
@@ -113,7 +116,7 @@ export const HelpPage: React.FC = () => {
             <span>Complete User Guide & Knowledge Base</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-heading tracking-tight">
-            How to Use <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-300">BeatsLink</span>
+            How to Use <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-300">WatchParty</span>
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto">
             Everything you need to know about setting up rooms, managing synchronized playlists, inviting friends, and mastering host playback controls.
@@ -128,7 +131,7 @@ export const HelpPage: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-white font-heading">Sign In & Create Room</h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Log in with your free BeatsLink account, select your starting track (e.g. Despacito or custom URL), and generate a unique party code.
+              Log in with your free WatchParty account, select your starting track (e.g. Despacito or custom URL), and generate a unique party code.
             </p>
           </div>
 

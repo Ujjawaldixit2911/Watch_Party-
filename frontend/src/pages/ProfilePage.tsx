@@ -16,7 +16,6 @@ import {
   Radio,
   ArrowLeft,
   ChevronRight,
-  Headphones,
   HardDrive,
   Plus,
   Camera,
@@ -99,7 +98,7 @@ export const ProfilePage: React.FC = () => {
             <User className="w-7 h-7" />
           </div>
           <h2 className="text-2xl font-bold font-heading text-white">Login Required</h2>
-          <p className="text-xs text-zinc-400">Please sign in to view and manage your BeatsLink profile.</p>
+          <p className="text-xs text-zinc-400">Please sign in to view and manage your WatchParty profile.</p>
           <div className="pt-2 flex gap-3 justify-center">
             <Link to="/login">
               <Button variant="primary">Sign In Now</Button>
@@ -183,7 +182,7 @@ export const ProfilePage: React.FC = () => {
     }
     submitReview(reviewStars, reviewText);
     setReviewText('');
-    toast.success('Your review has been posted on BeatsLink!');
+    toast.success('Your review has been posted on WatchParty!');
   };
 
   const handleAddCustomSong = (e: React.FormEvent) => {
@@ -250,11 +249,15 @@ export const ProfilePage: React.FC = () => {
             </Link>
             <div className="h-4 w-[1px] bg-slate-800" />
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
-                <Headphones className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30">
+                <img
+                  src="/assets/3d_dj_logo.jpg"
+                  alt="WatchParty Logo"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
               <span className="text-sm font-bold tracking-tight font-heading text-white">
-                Beats<span className="text-purple-400">Link</span> Profile
+                Watch<span className="text-purple-400">Party</span> Profile
               </span>
             </div>
           </div>
@@ -556,7 +559,7 @@ export const ProfilePage: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 2: Audio & Video Locker (BeatsLink Quota / Preset Locker) */}
+        {/* Tab 2: Audio & Video Locker (WatchParty Quota / Preset Locker) */}
         {activeTab === 'locker' && (
           <div className="space-y-6 animate-fade-in">
             {/* Storage Quota Card */}
@@ -747,7 +750,7 @@ export const ProfilePage: React.FC = () => {
                   <Star className="w-3.5 h-3.5 fill-current" />
                   <span>Give Your Feedback</span>
                 </div>
-                <h2 className="text-xl font-bold font-heading text-white">Review BeatsLink WatchParty</h2>
+                <h2 className="text-xl font-bold font-heading text-white">Review WatchParty</h2>
                 <p className="text-xs text-zinc-400">
                   How was your synchronized playback experience? Your feedback helps the community grow.
                 </p>
@@ -841,7 +844,7 @@ export const ProfilePage: React.FC = () => {
           <div className="bg-[#0F1222] border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl max-w-xl animate-fade-in">
             <div className="space-y-1">
               <h2 className="text-xl font-bold font-heading text-white">Security & Password</h2>
-              <p className="text-xs text-zinc-400">Keep your BeatsLink account safe and updated.</p>
+              <p className="text-xs text-zinc-400">Keep your WatchParty account safe and updated.</p>
             </div>
 
             <form onSubmit={handleUpdatePassword} className="space-y-4">

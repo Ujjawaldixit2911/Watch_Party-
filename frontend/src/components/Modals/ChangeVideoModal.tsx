@@ -91,7 +91,7 @@ export const ChangeVideoModal: React.FC<ChangeVideoModalProps> = ({ isOpen, onCl
       isOpen={isOpen}
       onClose={onClose}
       title="Change Video or Song"
-      description="Paste any YouTube URL/ID or select a trending preset track from the BeatsLink locker."
+      description="Paste any YouTube URL/ID or select a trending preset track from the WatchParty locker."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input

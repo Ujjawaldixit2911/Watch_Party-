@@ -38,17 +38,21 @@ export const LandingPage: React.FC = () => {
       {/* 1. Header Navigation */}
       <header className="w-full border-b border-slate-800/80 bg-[#070913]/85 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo & Brand Tagline */}
+          {/* Logo & Brand Tagline with 3D DJ Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform">
-              <Headphones className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-purple-500 via-indigo-500 to-pink-500 shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform flex-shrink-0">
+              <img
+                src="/assets/3d_dj_logo.jpg"
+                alt="WatchParty 3D DJ Logo"
+                className="w-full h-full object-cover rounded-full"
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-extrabold tracking-tight font-heading text-white leading-none">
-                Beats<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Link</span>
+                Watch<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Party</span>
               </span>
               <span className="text-[10px] font-semibold text-zinc-400 tracking-wider">
-                Suno Dil Ki • Stream In Sync
+                Real-Time Synchronized Streaming
               </span>
             </div>
           </Link>
@@ -237,7 +241,7 @@ export const LandingPage: React.FC = () => {
                     <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                   </div>
-                  <span className="font-mono ml-2 text-purple-400 font-bold text-[11px]">beatslink/3d-stage</span>
+                  <span className="font-mono ml-2 text-purple-400 font-bold text-[11px]">watchparty/3d-stage</span>
                 </div>
 
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[10px] font-bold">
@@ -285,7 +289,7 @@ export const LandingPage: React.FC = () => {
                           <span className="text-[10px] text-zinc-400">• BPM: 140</span>
                         </div>
                         <h4 className="text-xs font-bold text-white truncate">
-                          Luis Fonsi – Despacito (BeatsLink 3D Remix)
+                          Luis Fonsi – Despacito (WatchParty 3D Remix)
                         </h4>
                       </div>
                     </div>
@@ -330,7 +334,7 @@ export const LandingPage: React.FC = () => {
               <span>Features & Benefits</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-heading">
-              Why Choose BeatsLink WatchParty?
+              Why Choose WatchParty?
             </h2>
             <p className="text-zinc-400 text-xs sm:text-sm max-w-xl mx-auto">
               Engineered with modern WebSockets, server-authoritative timestamps, and zero-latency drift protection.
@@ -393,7 +397,7 @@ export const LandingPage: React.FC = () => {
               </div>
               <h3 className="text-base font-bold text-white font-heading">Log In & Create Room</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Sign in with your BeatsLink profile, select a starter track like Despacito, and launch your room.
+                Sign in with your WatchParty profile, select a starter track like Despacito, and launch your room.
               </p>
             </div>
 
@@ -565,12 +569,16 @@ export const LandingPage: React.FC = () => {
       <footer className="mt-auto border-t border-slate-800/80 bg-[#070913] py-10 px-4 sm:px-6 lg:px-8 text-xs text-zinc-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white">
-              <Headphones className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-purple-500 to-pink-500 shadow-md flex-shrink-0">
+              <img
+                src="/assets/3d_dj_logo.jpg"
+                alt="WatchParty Logo"
+                className="w-full h-full object-cover rounded-full"
+              />
             </div>
             <div>
-              <span className="font-bold text-zinc-200 font-heading">BeatsLink WatchParty</span>
-              <p className="text-[11px] text-zinc-500">Suno Dil Ki • Real-Time Synchronized Streaming</p>
+              <span className="font-bold text-zinc-200 font-heading">WatchParty</span>
+              <p className="text-[11px] text-zinc-500">Real-Time Synchronized Video & Music Streaming</p>
             </div>
           </div>
 
@@ -589,7 +597,7 @@ export const LandingPage: React.FC = () => {
             </Link>
           </div>
 
-          <p>© 2026 BeatsLink Online. All rights reserved.</p>
+          <p>© 2026 WatchParty. All rights reserved.</p>
         </div>
       </footer>
     </div>

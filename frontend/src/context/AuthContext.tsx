@@ -101,7 +101,7 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     author: 'Kunal Deshmukh',
     role: 'Music Producer & Host',
     stars: 5,
-    text: 'BeatsLink WatchParty is insane! The zero-latency sync while listening to Despacito and new track drops with my friends across different cities is flawless.',
+    text: 'WatchParty is insane! The zero-latency sync while listening to Despacito and new track drops with my friends across different cities is flawless.',
     date: 'Yesterday',
   },
   {
@@ -140,10 +140,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const AUTH_STORAGE_KEY = 'beatslink_auth_user';
-const SAVED_ROOMS_KEY = 'beatslink_saved_rooms';
-const REVIEWS_KEY = 'beatslink_user_reviews';
-const LOCKER_KEY = 'beatslink_locker_songs';
+const AUTH_STORAGE_KEY = 'watchparty_auth_user';
+const SAVED_ROOMS_KEY = 'watchparty_saved_rooms';
+const REVIEWS_KEY = 'watchparty_user_reviews';
+const LOCKER_KEY = 'watchparty_locker_songs';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(() => {
@@ -249,7 +249,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       name: cleanName,
       email: cleanEmail,
       avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanName}`,
-      bio: 'New BeatsLink Member ✨',
+      bio: 'New WatchParty Member ✨',
       favoriteGenre: 'All Genres',
       createdAt: Date.now(),
       roomsHosted: 0,
@@ -262,13 +262,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const guestLogin = (name?: string) => {
-    const demoName = name?.trim() || 'BeatsParty Host';
+    const demoName = name?.trim() || 'Party Host';
     const guestUser: AuthUser = {
       id: `usr_${Date.now()}`,
       name: demoName,
-      email: `${demoName.toLowerCase().replace(/\s+/g, '')}@beatslink.online`,
+      email: `${demoName.toLowerCase().replace(/\s+/g, '')}@watchparty.live`,
       avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${demoName}`,
-      bio: 'Streaming high quality beats with friends 🎧',
+      bio: 'Streaming high quality sync parties with friends 🎧',
       favoriteGenre: 'Latin Pop & Lo-Fi',
       createdAt: Date.now(),
       roomsHosted: 1,
@@ -312,7 +312,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       date: 'Just now',
     };
     setReviews((prev) => [newRev, ...prev]);
-    toast.success('Thank you for your review on BeatsLink!');
+    toast.success('Thank you for your review on WatchParty!');
   };
 
   const addLockerSong = (song: LockerItem) => {
