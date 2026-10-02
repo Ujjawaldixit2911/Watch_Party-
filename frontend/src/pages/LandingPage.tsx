@@ -5,8 +5,6 @@ import {
   ShieldCheck,
   Zap,
   Sparkles,
-  Play,
-  Volume2,
   ArrowRight,
   Star,
   HardDrive,
@@ -65,9 +63,6 @@ export const LandingPage: React.FC = () => {
             </a>
             <a href="#flow-lifecycle" className="hover:text-purple-300 transition-colors">
               Audio & Video Flow
-            </a>
-            <a href="#featured-rooms" className="hover:text-purple-300 transition-colors">
-              Live Rooms
             </a>
             <a href="#reviews" className="hover:text-purple-300 transition-colors">
               Reviews
@@ -231,10 +226,10 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: 3D DJ Character Stage & Live Preview Card */}
+          {/* Right Column: 3D Cyber DJ Character Stage */}
           <div className="lg:col-span-6 relative">
             <div className="bg-[#0F1222]/95 border border-slate-700/80 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-              {/* Top Mode Switcher Bar */}
+              {/* Window Header Simulation */}
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5">
@@ -242,170 +237,85 @@ export const LandingPage: React.FC = () => {
                     <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                   </div>
-                  <span className="font-mono ml-2 text-purple-400 font-bold text-[11px]">beatslink/stage-live</span>
+                  <span className="font-mono ml-2 text-purple-400 font-bold text-[11px]">beatslink/3d-stage</span>
                 </div>
 
-                {/* View Switcher */}
-                <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                  <button
-                    onClick={() => setActiveFlowTab('audio')}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                      activeFlowTab === 'audio'
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    3D DJ STAGE
-                  </button>
-                  <button
-                    onClick={() => setActiveFlowTab('video')}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                      activeFlowTab === 'video'
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    SYNC PREVIEW
-                  </button>
+                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[10px] font-bold">
+                  <Sparkles className="w-3 h-3 text-pink-400" />
+                  <span>3D DJ LIVE MIXER</span>
                 </div>
               </div>
 
-              {/* View 1: 3D Cyber DJ Character Stage */}
-              {activeFlowTab === 'audio' ? (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="relative aspect-square sm:aspect-video rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-950 shadow-2xl group/dj">
-                    <img
-                      src="/assets/3d_dj_hero.jpg"
-                      alt="3D Cyber DJ Host"
-                      className="w-full h-full object-cover object-center group-hover/dj:scale-105 transition-transform duration-700"
-                    />
+              {/* 3D Cyber DJ Character Stage */}
+              <div className="space-y-4 animate-fade-in">
+                <div className="relative aspect-square sm:aspect-video rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-950 shadow-2xl group/dj">
+                  <img
+                    src="/assets/3d_dj_hero.jpg"
+                    alt="3D Cyber DJ Host"
+                    className="w-full h-full object-cover object-center group-hover/dj:scale-105 transition-transform duration-700"
+                  />
 
-                    {/* Holographic Glowing Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#070913]/95 via-transparent to-black/30 pointer-events-none" />
+                  {/* Holographic Glowing Overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#070913]/95 via-transparent to-black/30 pointer-events-none" />
 
-                    {/* Floating Top Status Badges */}
-                    <div className="absolute top-3 left-3 flex items-center gap-2">
-                      <span className="px-2.5 py-1 rounded-xl bg-purple-900/70 backdrop-blur-md border border-purple-500/40 text-purple-300 text-[10px] font-extrabold flex items-center gap-1.5 shadow-lg">
-                        <Sparkles className="w-3 h-3 text-pink-400" />
-                        3D DJ HOST • LIVE
-                      </span>
-                    </div>
-
-                    <div className="absolute top-3 right-3">
-                      <span className="px-2.5 py-1 rounded-xl bg-black/70 backdrop-blur-md border border-emerald-500/40 text-emerald-400 text-[10px] font-bold flex items-center gap-1 shadow-lg">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                        0.0s DRIFT LOCK
-                      </span>
-                    </div>
-
-                    {/* Floating DJ Console Track Banner */}
-                    <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#0F1222]/85 backdrop-blur-md border border-purple-500/30 flex items-center justify-between">
-                      <div className="min-w-0 flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white flex-shrink-0">
-                          <Headphones className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-bold text-pink-400 uppercase tracking-wider">NOW MIXING</span>
-                            <span className="text-[10px] text-zinc-400">• BPM: 140</span>
-                          </div>
-                          <h4 className="text-xs font-bold text-white truncate">
-                            Luis Fonsi – Despacito (BeatsLink 3D Remix)
-                          </h4>
-                        </div>
-                      </div>
-
-                      {/* Equalizer animation */}
-                      <div className="flex items-end gap-1 px-2 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60">
-                        <div className="w-1 h-3 bg-purple-400 rounded-full animate-pulse" />
-                        <div className="w-1 h-5 bg-pink-400 rounded-full animate-bounce" />
-                        <div className="w-1 h-2 bg-indigo-400 rounded-full animate-pulse" />
-                        <div className="w-1 h-4 bg-purple-400 rounded-full animate-bounce" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3D Console Status Bar */}
-                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                    <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
-                      <span className="text-[10px] text-zinc-400 block">Host Channel</span>
-                      <strong className="text-purple-300 font-mono text-xs">CYBER-MIX 01</strong>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
-                      <span className="text-[10px] text-zinc-400 block">Audio Engine</span>
-                      <strong className="text-pink-300 font-mono text-xs">NEON PULSE 3D</strong>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
-                      <span className="text-[10px] text-zinc-400 block">Synced Room</span>
-                      <strong className="text-emerald-300 font-mono text-xs">WK-7F29Q</strong>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* View 2: Live Room Preview */
-                <div className="space-y-4 animate-fade-in">
-                  <div className="relative aspect-video bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 group">
-                    <img
-                      src="https://img.youtube.com/vi/kJQP7kiw5Fk/hqdefault.jpg"
-                      alt="Luis Fonsi - Despacito"
-                      className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-extrabold uppercase">
-                          Default Starter Hit
-                        </span>
-                        <span className="text-[11px] text-pink-300 font-medium">Synced with 4 listeners</span>
-                      </div>
-                      <h3 className="text-sm sm:text-base font-bold text-white truncate">
-                        Luis Fonsi - Despacito ft. Daddy Yankee
-                      </h3>
-                    </div>
-
-                    {/* Equalizer animation bar */}
-                    <div className="absolute top-3 right-3 flex items-end gap-1 px-2.5 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-purple-500/30">
-                      <div className="w-1 h-4 bg-purple-400 rounded-full animate-pulse" />
-                      <div className="w-1 h-6 bg-pink-400 rounded-full animate-bounce" />
-                      <div className="w-1 h-3 bg-indigo-400 rounded-full animate-pulse" />
-                      <div className="w-1 h-5 bg-purple-400 rounded-full animate-bounce" />
-                    </div>
-                  </div>
-
-                  {/* Simulated Playback Controls */}
-                  <div className="p-3 bg-[#151932] border border-slate-800 rounded-2xl flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
-                        <Play className="w-4 h-4 fill-current ml-0.5" />
-                      </div>
-                      <div>
-                        <div className="font-mono text-xs font-bold text-zinc-200">02:14 / 04:42</div>
-                        <div className="text-[10px] text-purple-400 font-semibold">Master Host Clock</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Volume2 className="w-4 h-4 text-zinc-400" />
-                      <div className="w-20 h-1.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" />
-                    </div>
-                  </div>
-
-                  {/* Simulated Chat Bubble */}
-                  <div className="bg-[#151932]/70 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-[10px] font-bold text-white">
-                        D
-                      </div>
-                      <div>
-                        <span className="font-bold text-purple-300">Dev (Host):</span>{' '}
-                        <span className="text-zinc-300">"Master Sync is locked! Pasito a pasito..."</span>
-                      </div>
-                    </div>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
-                      🔥 100%
+                  {/* Floating Top Status Badges */}
+                  <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-xl bg-purple-900/70 backdrop-blur-md border border-purple-500/40 text-purple-300 text-[10px] font-extrabold flex items-center gap-1.5 shadow-lg">
+                      <Headphones className="w-3 h-3 text-pink-400" />
+                      MASTER DJ HOST
                     </span>
                   </div>
+
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2.5 py-1 rounded-xl bg-black/70 backdrop-blur-md border border-emerald-500/40 text-emerald-400 text-[10px] font-bold flex items-center gap-1 shadow-lg">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      0.0s DRIFT LOCK
+                    </span>
+                  </div>
+
+                  {/* Floating DJ Console Track Banner */}
+                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#0F1222]/85 backdrop-blur-md border border-purple-500/30 flex items-center justify-between">
+                    <div className="min-w-0 flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white flex-shrink-0">
+                        <Headphones className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-bold text-pink-400 uppercase tracking-wider">NOW MIXING</span>
+                          <span className="text-[10px] text-zinc-400">• BPM: 140</span>
+                        </div>
+                        <h4 className="text-xs font-bold text-white truncate">
+                          Luis Fonsi – Despacito (BeatsLink 3D Remix)
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Equalizer animation */}
+                    <div className="flex items-end gap-1 px-2 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60">
+                      <div className="w-1 h-3 bg-purple-400 rounded-full animate-pulse" />
+                      <div className="w-1 h-5 bg-pink-400 rounded-full animate-bounce" />
+                      <div className="w-1 h-2 bg-indigo-400 rounded-full animate-pulse" />
+                      <div className="w-1 h-4 bg-purple-400 rounded-full animate-bounce" />
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* 3D Console Status Bar */}
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
+                    <span className="text-[10px] text-zinc-400 block">Host Channel</span>
+                    <strong className="text-purple-300 font-mono text-xs">CYBER-MIX 01</strong>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
+                    <span className="text-[10px] text-zinc-400 block">Audio Engine</span>
+                    <strong className="text-pink-300 font-mono text-xs">NEON PULSE 3D</strong>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
+                    <span className="text-[10px] text-zinc-400 block">Live Sync</span>
+                    <strong className="text-emerald-300 font-mono text-xs">ACTIVE (0.0s)</strong>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -594,104 +504,6 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. Featured / Active Rooms Showcase */}
-      <section id="featured-rooms" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#070913]">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold mb-1">
-                <Radio className="w-3.5 h-3.5 animate-pulse" />
-                <span>Active Rooms</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-heading">
-                Popular Watch Party Rooms
-              </h2>
-            </div>
-            <Link to="/join">
-              <Button variant="secondary" size="sm" className="text-xs">
-                Enter Custom Room Code
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Room Card 1: Despacito Latin Party */}
-            <div className="p-5 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-purple-500/40 transition-all space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 relative">
-                  <img
-                    src="https://img.youtube.com/vi/kJQP7kiw5Fk/hqdefault.jpg"
-                    alt="Despacito Latin Hits"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 text-[10px] font-bold">
-                    ● 8 LISTENING
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white font-heading truncate">Despacito & Latin Beats Lounge</h3>
-                  <p className="text-[11px] text-zinc-400">Host: DJ Carlos • Code: WK-DESPA</p>
-                </div>
-              </div>
-              <Link to="/join/WK-DESPA">
-                <Button size="sm" className="w-full bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white text-xs">
-                  Join Party
-                </Button>
-              </Link>
-            </div>
-
-            {/* Room Card 2: Lofi Chill & Study */}
-            <div className="p-5 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-purple-500/40 transition-all space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 relative">
-                  <img
-                    src="https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg"
-                    alt="Lofi Study Room"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 text-[10px] font-bold">
-                    ● 14 STUDYING
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white font-heading truncate">Midnight Lo-Fi Coding Session</h3>
-                  <p className="text-[11px] text-zinc-400">Host: Sarah • Code: WK-STUDY</p>
-                </div>
-              </div>
-              <Link to="/join/WK-STUDY">
-                <Button size="sm" className="w-full bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white text-xs">
-                  Join Party
-                </Button>
-              </Link>
-            </div>
-
-            {/* Room Card 3: Synthwave Retro */}
-            <div className="p-5 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-purple-500/40 transition-all space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 relative">
-                  <img
-                    src="https://img.youtube.com/vi/4xDzrJKXOOY/hqdefault.jpg"
-                    alt="Synthwave Chill"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 text-[10px] font-bold">
-                    ● 6 VIBING
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white font-heading truncate">Cyberpunk & Retro Synthwave</h3>
-                  <p className="text-[11px] text-zinc-400">Host: Alex • Code: WK-SYNTH</p>
-                </div>
-              </div>
-              <Link to="/join/WK-SYNTH">
-                <Button size="sm" className="w-full bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white text-xs">
-                  Join Party
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 7. Community Reviews & Testimonials */}
       <section id="reviews" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17]">

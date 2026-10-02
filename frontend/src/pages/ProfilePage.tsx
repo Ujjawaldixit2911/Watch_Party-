@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User,
@@ -19,15 +19,53 @@ import {
   Headphones,
   HardDrive,
   Plus,
+  Camera,
+  Upload,
+  Image,
+  RefreshCw,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { toast } from 'sonner';
 
+const PRESET_AVATARS = [
+  {
+    id: '3d-dj',
+    label: '3D Cyber DJ',
+    url: '/assets/3d_dj_hero.jpg',
+  },
+  {
+    id: 'synth-guy',
+    label: 'Neon Producer',
+    url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'lofi-girl',
+    label: 'Lo-Fi Chill',
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'cyber-gamer',
+    label: 'Cyber Gamer',
+    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'sound-artist',
+    label: 'Sound Artist',
+    url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'dj-bot',
+    label: 'Synth Bot',
+    url: 'https://api.dicebear.com/7.x/bottts/svg?seed=BeatsPartyDJ',
+  },
+];
+
 export const ProfilePage: React.FC = () => {
   const { user, updateProfile, logout, savedRooms, reviews, submitReview, lockerSongs, addLockerSong } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<'profile' | 'locker' | 'rooms' | 'review' | 'security'>('profile');
 
@@ -35,6 +73,7 @@ export const ProfilePage: React.FC = () => {
   const [name, setName] = useState(user?.name || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [favoriteGenre, setFavoriteGenre] = useState(user?.favoriteGenre || 'Pop & EDM');
+  const [avatarUrlInput, setAvatarUrlInput] = useState(user?.avatar || '');
 
   // Review form states
   const [reviewStars, setReviewStars] = useState(5);
@@ -74,6 +113,54 @@ export const ProfilePage: React.FC = () => {
     );
   }
 
+  // Handle local file image upload (converted to base64)
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check size limit (max ~5MB for smooth storage)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64String = event.target?.result as string;
+      if (base64String) {
+        setAvatarUrlInput(base64String);
+        updateProfile({ avatar: base64String });
+        toast.success('Profile picture updated successfully!');
+      }
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read image file.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleApplyAvatarUrl = () => {
+    if (!avatarUrlInput.trim()) {
+      toast.error('Please enter a valid image URL.');
+      return;
+    }
+    updateProfile({ avatar: avatarUrlInput.trim() });
+    toast.success('Profile avatar updated!');
+  };
+
+  const handleSelectPresetAvatar = (url: string) => {
+    setAvatarUrlInput(url);
+    updateProfile({ avatar: url });
+    toast.success('Preset avatar selected!');
+  };
+
+  const handleResetAvatar = () => {
+    const defaultBot = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.name)}`;
+    setAvatarUrlInput(defaultBot);
+    updateProfile({ avatar: defaultBot });
+    toast.info('Avatar reset to default.');
+  };
+
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -84,6 +171,7 @@ export const ProfilePage: React.FC = () => {
       name: name.trim(),
       bio: bio.trim(),
       favoriteGenre: favoriteGenre.trim(),
+      avatar: avatarUrlInput.trim() || user.avatar,
     });
   };
 
@@ -140,6 +228,15 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#070913] text-zinc-100 flex flex-col selection:bg-purple-500 selection:text-white">
+      {/* Hidden File Input for Avatar Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageFileUpload}
+        accept="image/*"
+        className="hidden"
+      />
+
       {/* Header */}
       <header className="border-b border-slate-800/80 bg-[#070913]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -192,19 +289,33 @@ export const ProfilePage: React.FC = () => {
           <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 blur-[100px] pointer-events-none rounded-full" />
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
-            <div className="relative">
+            {/* Clickable Profile Avatar with Camera Overlay */}
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-500 to-pink-500 p-1 shadow-xl shadow-purple-600/25">
-                <div className="w-full h-full rounded-xl bg-slate-950 flex items-center justify-center overflow-hidden">
+                <div className="w-full h-full rounded-xl bg-slate-950 flex items-center justify-center overflow-hidden relative">
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-3xl font-extrabold text-white">{user.name.charAt(0)}</span>
                   )}
+                  {/* Hover Camera Overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-1">
+                    <Camera className="w-6 h-6 text-purple-300" />
+                    <span className="text-[9px] font-bold uppercase tracking-wider">Upload</span>
+                  </div>
                 </div>
               </div>
-              <span className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-emerald-500 text-[10px] font-bold text-white border-2 border-slate-950 shadow-md">
-                PRO ACTIVE
-              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white border-2 border-slate-950 shadow-md transition-transform group-hover:scale-110"
+                title="Upload custom profile photo"
+              >
+                <Camera className="w-3.5 h-3.5" />
+              </button>
             </div>
 
             <div className="flex-1 text-center sm:text-left space-y-2">
@@ -253,7 +364,7 @@ export const ProfilePage: React.FC = () => {
             }`}
           >
             <User className="w-4 h-4" />
-            <span>Profile Info</span>
+            <span>Profile & Photo</span>
           </button>
 
           <button
@@ -305,48 +416,143 @@ export const ProfilePage: React.FC = () => {
           </button>
         </div>
 
-        {/* Tab 1: Profile Information */}
+        {/* Tab 1: Profile Information & Photo Upload */}
         {activeTab === 'profile' && (
-          <div className="bg-[#0F1222] border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl animate-fade-in">
-            <div className="space-y-1">
-              <h2 className="text-xl font-bold font-heading text-white">Edit Profile Details</h2>
-              <p className="text-xs text-zinc-400">Update your stage name, bio, and favorite music taste.</p>
-            </div>
-
-            <form onSubmit={handleSaveProfile} className="space-y-4 max-w-xl">
-              <Input
-                label="Display Name / Handle"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Alex"
-                required
-              />
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-300">Bio / About Me</label>
-                <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Share what kind of music or videos you love streaming..."
-                  rows={3}
-                  className="w-full bg-[#151932] border border-slate-700/80 rounded-xl p-3 text-xs sm:text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                />
-              </div>
-
-              <Input
-                label="Favorite Genre"
-                value={favoriteGenre}
-                onChange={(e) => setFavoriteGenre(e.target.value)}
-                placeholder="e.g. Latin Pop, Lo-Fi Chill, Synthwave, Rock"
-              />
-
-              <div className="pt-2">
-                <Button type="submit" size="md" className="bg-gradient-to-r from-purple-600 to-indigo-600 font-bold">
-                  <Save className="w-4 h-4 mr-1.5" />
-                  Save Changes
+          <div className="bg-[#0F1222] border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-8 shadow-xl animate-fade-in">
+            {/* Custom Photo Upload Section */}
+            <div className="p-6 rounded-2xl bg-[#151932]/70 border border-slate-700/80 space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2 font-heading">
+                    <Camera className="w-4 h-4 text-purple-400" />
+                    Custom Profile Photo & Avatar
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    Upload your own photo from device, paste an image link, or pick from our 3D presets.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleResetAvatar}
+                  className="text-xs border-slate-700 text-zinc-300"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 mr-1" />
+                  Reset
                 </Button>
               </div>
-            </form>
+
+              {/* Photo Upload Actions */}
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Button
+                  type="button"
+                  size="md"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Photo from Device
+                </Button>
+
+                <div className="w-full sm:w-auto flex-1 flex gap-2">
+                  <Input
+                    placeholder="Or paste image URL (https://...)"
+                    value={avatarUrlInput}
+                    onChange={(e) => setAvatarUrlInput(e.target.value)}
+                    icon={<Image className="w-4 h-4 text-zinc-400" />}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="md"
+                    onClick={handleApplyAvatarUrl}
+                    className="h-10 text-xs flex-shrink-0"
+                  >
+                    Apply URL
+                  </Button>
+                </div>
+              </div>
+
+              {/* Preset Avatars Library */}
+              <div className="space-y-2 pt-2">
+                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                  Quick 3D & Cyberpunk Preset Avatars
+                </span>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                  {PRESET_AVATARS.map((preset) => {
+                    const isSelected = user.avatar === preset.url;
+                    return (
+                      <button
+                        type="button"
+                        key={preset.id}
+                        onClick={() => handleSelectPresetAvatar(preset.url)}
+                        className={`flex flex-col items-center gap-1.5 p-2 rounded-2xl border transition-all ${
+                          isSelected
+                            ? 'bg-purple-600/30 border-purple-500 shadow-md scale-105'
+                            : 'bg-slate-900/60 border-slate-800 hover:border-purple-500/50'
+                        }`}
+                      >
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-950 relative">
+                          <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-purple-600/40 flex items-center justify-center">
+                              <Check className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-semibold text-zinc-300 truncate w-full text-center">
+                          {preset.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Info Form */}
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <h3 className="text-base font-bold font-heading text-white">Edit Profile Details</h3>
+                <p className="text-xs text-zinc-400">Update your stage name, bio, and favorite music taste.</p>
+              </div>
+
+              <form onSubmit={handleSaveProfile} className="space-y-4 max-w-xl">
+                <Input
+                  label="Display Name / Handle"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Alex"
+                  required
+                />
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300">Bio / About Me</label>
+                  <textarea
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Share what kind of music or videos you love streaming..."
+                    rows={3}
+                    className="w-full bg-[#151932] border border-slate-700/80 rounded-xl p-3 text-xs sm:text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  />
+                </div>
+
+                <Input
+                  label="Favorite Genre"
+                  value={favoriteGenre}
+                  onChange={(e) => setFavoriteGenre(e.target.value)}
+                  placeholder="e.g. Latin Pop, Lo-Fi Chill, Synthwave, Rock"
+                />
+
+                <div className="pt-2">
+                  <Button type="submit" size="md" className="bg-gradient-to-r from-purple-600 to-indigo-600 font-bold">
+                    <Save className="w-4 h-4 mr-1.5" />
+                    Save All Profile Changes
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
@@ -531,7 +737,7 @@ export const ProfilePage: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 4: Give Review / Testimonials (Matching BeatsLink Review Flow) */}
+        {/* Tab 4: Give Review / Testimonials */}
         {activeTab === 'review' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in">
             {/* Review Form */}
