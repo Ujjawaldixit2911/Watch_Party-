@@ -119,7 +119,7 @@ export const RoomPage: React.FC = () => {
                   Now Playing
                 </span>
                 <h2 className="text-xs sm:text-sm font-semibold text-white truncate max-w-xs sm:max-w-md">
-                  {state.activeVideoTitle || 'Rick Astley - Never Gonna Give You Up'}
+                  {state.activeVideoTitle || 'Luis Fonsi - Despacito ft. Daddy Yankee'}
                 </h2>
               </div>
             </div>

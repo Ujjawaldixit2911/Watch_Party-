@@ -57,7 +57,7 @@ type RoomAction =
   | { type: 'RESET_ROOM' };
 
 const initialPlayback: PlaybackSnapshot = {
-  videoId: 'dQw4w9WgXcQ',
+  videoId: 'kJQP7kiw5Fk', // Luis Fonsi - Despacito ft. Daddy Yankee
   time: 0,
   state: 'PAUSED',
   serverTimestamp: Date.now(),

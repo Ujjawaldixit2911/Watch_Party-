@@ -41,7 +41,7 @@ export class Room {
     this.roomCode = props.roomCode;
     this.name = props.name ?? null;
     this.hostId = props.hostId;
-    this.currentVideoId = props.currentVideoId ?? 'dQw4w9WgXcQ'; // default starter video
+    this.currentVideoId = props.currentVideoId ?? 'kJQP7kiw5Fk'; // default starter video (Despacito)
     this.storedCurrentTime = 0;
     this.playbackState = 'PAUSED';
     this.lastStateUpdatedAt = Date.now();

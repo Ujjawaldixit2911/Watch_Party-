@@ -78,3 +78,4 @@ export interface ServerToClientEvents {
   message_received: (data: ChatMessage) => void;
   error: (data: ServerErrorResponse) => void;
 }
+

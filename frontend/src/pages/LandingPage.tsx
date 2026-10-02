@@ -1,331 +1,783 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  Tv,
+  Headphones,
   ShieldCheck,
   Zap,
-  Share2,
   Sparkles,
   Play,
   Volume2,
   ArrowRight,
-  Crown,
+  Star,
+  HardDrive,
+  Users,
+  HelpCircle,
+  LogOut,
+  ChevronDown,
+  Flame,
+  Radio,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
-import { RoleBadge } from '../components/ui/Badge';
 
 export const LandingPage: React.FC = () => {
+  const { user, isAuthenticated, logout, reviews } = useAuth();
+  const navigate = useNavigate();
+
+  const [activeFlowTab, setActiveFlowTab] = useState<'audio' | 'video'>('audio');
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
+  const handleCreatePartyClick = () => {
+    if (isAuthenticated) {
+      navigate('/create');
+    } else {
+      navigate('/login?redirect=/create');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#09090B] text-zinc-100 selection:bg-indigo-500 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#070913] text-zinc-100 selection:bg-purple-500 selection:text-white flex flex-col overflow-x-hidden">
       {/* 1. Header Navigation */}
-      <header className="w-full border-b border-zinc-800/80 bg-[#09090B]/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="w-full border-b border-slate-800/80 bg-[#070913]/85 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
-              <Tv className="w-5 h-5" />
+          {/* Logo & Brand Tagline */}
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform">
+              <Headphones className="w-5 h-5" />
             </div>
-            <span className="text-lg font-extrabold tracking-tight font-heading text-white">
-              Watch<span className="text-indigo-400">Party</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="text-lg font-extrabold tracking-tight font-heading text-white leading-none">
+                Beats<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Link</span>
+              </span>
+              <span className="text-[10px] font-semibold text-zinc-400 tracking-wider">
+                Suno Dil Ki • Stream In Sync
+              </span>
+            </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-            <a href="#features" className="hover:text-white transition-colors">
-              Features
+          {/* Nav Links */}
+          <nav className="hidden lg:flex items-center gap-7 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <a href="#why-choose-us" className="hover:text-purple-300 transition-colors">
+              Why Choose Us
             </a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">
-              How it works
+            <a href="#how-it-works" className="hover:text-purple-300 transition-colors">
+              How It Works
             </a>
-            <a href="#mock-preview" className="hover:text-white transition-colors">
-              Live Preview
+            <a href="#flow-lifecycle" className="hover:text-purple-300 transition-colors">
+              Audio & Video Flow
             </a>
+            <a href="#featured-rooms" className="hover:text-purple-300 transition-colors">
+              Live Rooms
+            </a>
+            <a href="#reviews" className="hover:text-purple-300 transition-colors">
+              Reviews
+            </a>
+            <Link to="/help" className="hover:text-purple-300 transition-colors flex items-center gap-1">
+              <HelpCircle className="w-3.5 h-3.5 text-purple-400" />
+              Help Manual
+            </Link>
           </nav>
 
+          {/* Auth Actions & Profile Menu */}
           <div className="flex items-center gap-3">
             <Link to="/join">
-              <Button variant="ghost" size="sm" className="text-zinc-300">
+              <Button variant="ghost" size="sm" className="text-zinc-300 text-xs hover:text-white">
                 Join Room
               </Button>
             </Link>
-            <Link to="/create">
-              <Button variant="primary" size="sm" className="shadow-indigo-600/30">
-                Create Party
-              </Button>
-            </Link>
+
+            {!isAuthenticated ? (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" size="sm" className="text-zinc-300 text-xs hover:text-white hidden sm:inline-flex">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30"
+                  >
+                    Sign Up Free
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              /* Profile Menu Pill */
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="flex items-center gap-2 p-1 pl-2 pr-3 rounded-full bg-slate-900 border border-slate-700/80 hover:border-purple-500/60 transition-all text-xs"
+                >
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden">
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      user?.name.charAt(0)
+                    )}
+                  </div>
+                  <span className="font-semibold text-zinc-200 max-w-[90px] truncate">{user?.name}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                </button>
+
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-[#0F1222] border border-slate-800 rounded-2xl p-2 shadow-2xl z-50 animate-slide-up space-y-1">
+                    <div className="px-3 py-2 border-b border-slate-800/80">
+                      <p className="text-xs font-bold text-white truncate">{user?.name}</p>
+                      <p className="text-[10px] text-zinc-400 truncate">{user?.email}</p>
+                    </div>
+
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-zinc-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+                    >
+                      <div className="w-4 h-4 text-purple-400">👤</div>
+                      <span>My Profile & Settings</span>
+                    </Link>
+
+                    <Link
+                      to="/create"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-zinc-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+                    >
+                      <Radio className="w-4 h-4 text-pink-400" />
+                      <span>Host a Watch Party</span>
+                    </Link>
+
+                    <Link
+                      to="/help"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-zinc-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+                    >
+                      <HelpCircle className="w-4 h-4 text-indigo-400" />
+                      <span>Help & User Guide</span>
+                    </Link>
+
+                    <div className="pt-1 border-t border-slate-800/80">
+                      <button
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          logout();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       {/* 2. Hero Section */}
-      <section className="relative pt-16 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex-1">
-        {/* Subtle background ambient glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none" />
-        <div className="absolute top-1/3 left-1/4 w-[350px] h-[250px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
+      <section className="relative pt-12 sm:pt-16 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex-1">
+        {/* Ambient Glowing Orbs */}
+        <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-r from-purple-600/20 via-pink-600/15 to-indigo-600/20 blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 right-10 w-[450px] h-[300px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold animate-fade-in">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Zero latency • Multi-device • Sub-second sync</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-heading leading-[1.1]">
-            Watch YouTube together. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-indigo-200">
-              In perfect sync.
-            </span>
-          </h1>
-
-          <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            Create a room, invite your friends, and experience YouTube videos together in real time
-            with server-authoritative playback, host moderation, and instant chat.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link to="/create" className="w-full sm:w-auto">
-              <Button variant="primary" size="lg" className="w-full sm:w-auto shadow-xl shadow-indigo-600/30 text-base">
-                Create a Watch Party
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-            <Link to="/join" className="w-full sm:w-auto">
-              <Button variant="glass" size="lg" className="w-full sm:w-auto text-base">
-                Join a Room
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* 3. Hero Mock Preview Frame */}
-        <div id="mock-preview" className="max-w-5xl mx-auto mt-14 relative z-10 animate-slide-up">
-          <div className="glass-panel-elevated rounded-3xl p-3 sm:p-5 border border-zinc-700/60 shadow-2xl">
-            {/* Window header simulation */}
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-800 text-xs text-zinc-400">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                </div>
-                <span className="font-mono ml-2 text-zinc-500 font-semibold">room/WK-7F29Q</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-subtle" />
-                <span className="text-zinc-300 font-medium">3 Watching</span>
-              </div>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          {/* Left Column: Hero Copy & CTA */}
+          <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold shadow-inner animate-fade-in">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span>GLOBAL SYNC PLAYBACK • SUNO DIL KI</span>
             </div>
 
-            {/* Simulated Watch Party Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-left">
-              {/* Player Side */}
-              <div className="lg:col-span-2 space-y-3">
-                <div className="relative aspect-video bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 flex items-center justify-center">
-                  <img
-                    src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
-                    alt="Demo preview video"
-                    className="w-full h-full object-cover opacity-80"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                    <div>
-                      <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wide">
-                        Now Synchronized
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white font-heading leading-[1.1]">
+              Sync Playback with <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-300">
+                Real-Time Synced Rooms
+              </span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-zinc-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              Experience YouTube videos and music hits like <strong>Despacito</strong> together with friends in perfect millisecond synchronization. Create private rooms, manage audio lockers, and chat in real-time.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+              <Button
+                onClick={handleCreatePartyClick}
+                size="lg"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-base shadow-xl shadow-purple-600/30 px-6"
+              >
+                Start Listening / Create Room
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+
+              <Link to="/help" className="w-full sm:w-auto">
+                <Button variant="glass" size="lg" className="w-full sm:w-auto text-sm border-slate-700/80 text-zinc-200">
+                  <HelpCircle className="w-4 h-4 mr-2 text-purple-400" />
+                  User Guide
+                </Button>
+              </Link>
+            </div>
+
+            {/* Live Stats Indicator */}
+            <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 text-xs text-zinc-400">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>0.0s Millisecond Drift Lock</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-purple-400" />
+                <span>Authoritative Server Sync</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: 3D DJ Character Stage & Live Preview Card */}
+          <div className="lg:col-span-6 relative">
+            <div className="bg-[#0F1222]/95 border border-slate-700/80 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
+              {/* Top Mode Switcher Bar */}
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+                  </div>
+                  <span className="font-mono ml-2 text-purple-400 font-bold text-[11px]">beatslink/stage-live</span>
+                </div>
+
+                {/* View Switcher */}
+                <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => setActiveFlowTab('audio')}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                      activeFlowTab === 'audio'
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    3D DJ STAGE
+                  </button>
+                  <button
+                    onClick={() => setActiveFlowTab('video')}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                      activeFlowTab === 'video'
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    SYNC PREVIEW
+                  </button>
+                </div>
+              </div>
+
+              {/* View 1: 3D Cyber DJ Character Stage */}
+              {activeFlowTab === 'audio' ? (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="relative aspect-square sm:aspect-video rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-950 shadow-2xl group/dj">
+                    <img
+                      src="/assets/3d_dj_hero.jpg"
+                      alt="3D Cyber DJ Host"
+                      className="w-full h-full object-cover object-center group-hover/dj:scale-105 transition-transform duration-700"
+                    />
+
+                    {/* Holographic Glowing Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#070913]/95 via-transparent to-black/30 pointer-events-none" />
+
+                    {/* Floating Top Status Badges */}
+                    <div className="absolute top-3 left-3 flex items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-xl bg-purple-900/70 backdrop-blur-md border border-purple-500/40 text-purple-300 text-[10px] font-extrabold flex items-center gap-1.5 shadow-lg">
+                        <Sparkles className="w-3 h-3 text-pink-400" />
+                        3D DJ HOST • LIVE
                       </span>
-                      <h4 className="text-sm font-bold text-white">Rick Astley - Never Gonna Give You Up (Official Music Video)</h4>
+                    </div>
+
+                    <div className="absolute top-3 right-3">
+                      <span className="px-2.5 py-1 rounded-xl bg-black/70 backdrop-blur-md border border-emerald-500/40 text-emerald-400 text-[10px] font-bold flex items-center gap-1 shadow-lg">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                        0.0s DRIFT LOCK
+                      </span>
+                    </div>
+
+                    {/* Floating DJ Console Track Banner */}
+                    <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#0F1222]/85 backdrop-blur-md border border-purple-500/30 flex items-center justify-between">
+                      <div className="min-w-0 flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white flex-shrink-0">
+                          <Headphones className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9px] font-bold text-pink-400 uppercase tracking-wider">NOW MIXING</span>
+                            <span className="text-[10px] text-zinc-400">• BPM: 140</span>
+                          </div>
+                          <h4 className="text-xs font-bold text-white truncate">
+                            Luis Fonsi – Despacito (BeatsLink 3D Remix)
+                          </h4>
+                        </div>
+                      </div>
+
+                      {/* Equalizer animation */}
+                      <div className="flex items-end gap-1 px-2 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60">
+                        <div className="w-1 h-3 bg-purple-400 rounded-full animate-pulse" />
+                        <div className="w-1 h-5 bg-pink-400 rounded-full animate-bounce" />
+                        <div className="w-1 h-2 bg-indigo-400 rounded-full animate-pulse" />
+                        <div className="w-1 h-4 bg-purple-400 rounded-full animate-bounce" />
+                      </div>
                     </div>
                   </div>
-                  <div className="absolute top-3 right-3">
-                    <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 text-xs font-bold border border-emerald-500/30 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      LIVE SYNC (0.0s drift)
+
+                  {/* 3D Console Status Bar */}
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
+                      <span className="text-[10px] text-zinc-400 block">Host Channel</span>
+                      <strong className="text-purple-300 font-mono text-xs">CYBER-MIX 01</strong>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
+                      <span className="text-[10px] text-zinc-400 block">Audio Engine</span>
+                      <strong className="text-pink-300 font-mono text-xs">NEON PULSE 3D</strong>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-[#151932] border border-slate-800">
+                      <span className="text-[10px] text-zinc-400 block">Synced Room</span>
+                      <strong className="text-emerald-300 font-mono text-xs">WK-7F29Q</strong>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* View 2: Live Room Preview */
+                <div className="space-y-4 animate-fade-in">
+                  <div className="relative aspect-video bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 group">
+                    <img
+                      src="https://img.youtube.com/vi/kJQP7kiw5Fk/hqdefault.jpg"
+                      alt="Luis Fonsi - Despacito"
+                      className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-extrabold uppercase">
+                          Default Starter Hit
+                        </span>
+                        <span className="text-[11px] text-pink-300 font-medium">Synced with 4 listeners</span>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-bold text-white truncate">
+                        Luis Fonsi - Despacito ft. Daddy Yankee
+                      </h3>
+                    </div>
+
+                    {/* Equalizer animation bar */}
+                    <div className="absolute top-3 right-3 flex items-end gap-1 px-2.5 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-purple-500/30">
+                      <div className="w-1 h-4 bg-purple-400 rounded-full animate-pulse" />
+                      <div className="w-1 h-6 bg-pink-400 rounded-full animate-bounce" />
+                      <div className="w-1 h-3 bg-indigo-400 rounded-full animate-pulse" />
+                      <div className="w-1 h-5 bg-purple-400 rounded-full animate-bounce" />
+                    </div>
+                  </div>
+
+                  {/* Simulated Playback Controls */}
+                  <div className="p-3 bg-[#151932] border border-slate-800 rounded-2xl flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
+                        <Play className="w-4 h-4 fill-current ml-0.5" />
+                      </div>
+                      <div>
+                        <div className="font-mono text-xs font-bold text-zinc-200">02:14 / 04:42</div>
+                        <div className="text-[10px] text-purple-400 font-semibold">Master Host Clock</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="w-4 h-4 text-zinc-400" />
+                      <div className="w-20 h-1.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" />
+                    </div>
+                  </div>
+
+                  {/* Simulated Chat Bubble */}
+                  <div className="bg-[#151932]/70 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-[10px] font-bold text-white">
+                        D
+                      </div>
+                      <div>
+                        <span className="font-bold text-purple-300">Dev (Host):</span>{' '}
+                        <span className="text-zinc-300">"Master Sync is locked! Pasito a pasito..."</span>
+                      </div>
+                    </div>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
+                      🔥 100%
                     </span>
                   </div>
                 </div>
-
-                {/* Simulated Controls */}
-                <div className="p-3 bg-[#111113] border border-zinc-800 rounded-xl flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-                      <Play className="w-4 h-4 fill-current ml-0.5" />
-                    </div>
-                    <span className="font-mono text-zinc-300 font-semibold">01:42 / 03:32</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Volume2 className="w-4 h-4 text-zinc-400" />
-                    <div className="w-16 h-1.5 bg-indigo-500 rounded-full" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Sidebar */}
-              <div className="space-y-3 flex flex-col">
-                <div className="bg-[#111113] border border-zinc-800 rounded-xl p-3 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-zinc-400 uppercase">
-                    <span>Participants (3)</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-[10px]">
-                          A
-                        </div>
-                        <span className="font-medium text-zinc-200">Aman (You)</span>
-                      </div>
-                      <RoleBadge role="HOST" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center font-bold text-[10px]">
-                          R
-                        </div>
-                        <span className="font-medium text-zinc-300">Rahul</span>
-                      </div>
-                      <RoleBadge role="MODERATOR" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-zinc-700 flex items-center justify-center font-bold text-[10px]">
-                          P
-                        </div>
-                        <span className="font-medium text-zinc-400">Priya</span>
-                      </div>
-                      <RoleBadge role="PARTICIPANT" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-[#111113] border border-zinc-800 rounded-xl p-3 flex-1 flex flex-col justify-between space-y-2">
-                  <div className="space-y-2 text-xs">
-                    <div className="bg-zinc-900/80 p-2 rounded-xl text-zinc-300">
-                      <span className="font-bold text-purple-300 mr-1.5">Rahul:</span>
-                      This sync is buttery smooth! 🔥
-                    </div>
-                    <div className="bg-indigo-600/30 p-2 rounded-xl text-indigo-100 border border-indigo-500/30">
-                      <span className="font-bold text-indigo-200 mr-1.5">Aman:</span>
-                      Wait till the chorus drops!
-                    </div>
-                  </div>
-                  <div className="pt-2 border-t border-zinc-800/80 flex gap-2">
-                    <input
-                      disabled
-                      placeholder="Send a message..."
-                      className="w-full bg-zinc-900 text-xs px-2.5 py-1.5 rounded-lg border border-zinc-800 text-zinc-400"
-                    />
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-zinc-800/80 bg-[#0c0c0e]">
+      {/* 3. Why Choose Us Section (Grid) */}
+      <section id="why-choose-us" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17]">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold">
+              <Flame className="w-3.5 h-3.5 text-purple-400" />
+              <span>Features & Benefits</span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-heading">
-              Engineered for seamless group watching
+              Why Choose BeatsLink WatchParty?
             </h2>
-            <p className="text-zinc-400 text-sm max-w-xl mx-auto">
-              Everything you need to host watch parties, stream together, and stay in sync down to the millisecond.
+            <p className="text-zinc-400 text-xs sm:text-sm max-w-xl mx-auto">
+              Engineered with modern WebSockets, server-authoritative timestamps, and zero-latency drift protection.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-[#111113] border border-zinc-800 hover:border-indigo-500/40 transition-colors space-y-3">
-              <div className="w-11 h-11 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center">
-                <Zap className="w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1 */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-purple-500/50 transition-all space-y-4 shadow-xl group">
+              <div className="w-12 h-12 rounded-2xl bg-purple-600/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Zap className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-white font-heading">Server-Authoritative Sync</h3>
+              <h3 className="text-lg font-bold text-white font-heading">Ultra-Low Latency Sync</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                The server owns time and playback state. Clients render smoothly without seek loops or jitter.
+                Server-authoritative clock drift compensation ensures that every single participant experiences every drop, beat, and scene in exact sub-second sync.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#111113] border border-zinc-800 hover:border-indigo-500/40 transition-colors space-y-3">
-              <div className="w-11 h-11 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5" />
+            {/* Card 2 */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-pink-500/50 transition-all space-y-4 shadow-xl group">
+              <div className="w-12 h-12 rounded-2xl bg-pink-600/20 text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-white font-heading">Granular RBAC</h3>
+              <h3 className="text-lg font-bold text-white font-heading">Study & Watch Groups</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Host, Moderator, and Viewer roles validated strictly on the backend for every socket event.
+                Perfect for friend circles, study squads, and watch parties. Includes live chat, host role promotion, kick moderation, and control request approvals.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#111113] border border-zinc-800 hover:border-indigo-500/40 transition-colors space-y-3">
-              <div className="w-11 h-11 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center">
-                <Share2 className="w-5 h-5" />
+            {/* Card 3 */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-indigo-500/50 transition-all space-y-4 shadow-xl group">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <HardDrive className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-white font-heading">Instant Room Codes</h3>
+              <h3 className="text-lg font-bold text-white font-heading">Audio Locker & Presets</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Clean, unambiguous room codes (e.g. WK-7F29Q) with one-click shareable URLs.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-[#111113] border border-zinc-800 hover:border-indigo-500/40 transition-colors space-y-3">
-              <div className="w-11 h-11 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center">
-                <Crown className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-white font-heading">Control Requests</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Viewers can submit requests to play, pause, seek, or change video for the host to approve.
+                Save default tracks like Despacito, Lo-Fi chill, and Synthwave into your account's locker for instantaneous 1-click playback during party streams.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. How It Works Section */}
-      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-zinc-800/80">
+      {/* 4. How It Works Timeline */}
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#070913]">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-heading">
-              How it works in 3 easy steps
+              How It Works in 3 Simple Steps
             </h2>
-            <p className="text-zinc-400 text-sm">No complex registration required. Jump straight into the watch party.</p>
+            <p className="text-zinc-400 text-xs sm:text-sm">
+              Get your party started in seconds with zero hassle.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center space-y-3 p-6 rounded-2xl bg-[#111113]/60 border border-zinc-800/80">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-extrabold font-heading flex items-center justify-center mx-auto text-lg shadow-lg shadow-indigo-600/30">
+            <div className="text-center space-y-3 p-6 rounded-3xl bg-[#0F1222]/80 border border-slate-800">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-extrabold font-heading flex items-center justify-center mx-auto text-lg shadow-lg shadow-purple-600/30">
                 1
               </div>
-              <h3 className="text-base font-bold text-white font-heading">Create a Party</h3>
+              <h3 className="text-base font-bold text-white font-heading">Log In & Create Room</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Choose your username and create a room with a single click. You automatically become the Host.
+                Sign in with your BeatsLink profile, select a starter track like Despacito, and launch your room.
               </p>
             </div>
 
-            <div className="text-center space-y-3 p-6 rounded-2xl bg-[#111113]/60 border border-zinc-800/80">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-extrabold font-heading flex items-center justify-center mx-auto text-lg shadow-lg shadow-indigo-600/30">
+            <div className="text-center space-y-3 p-6 rounded-3xl bg-[#0F1222]/80 border border-slate-800">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-extrabold font-heading flex items-center justify-center mx-auto text-lg shadow-lg shadow-purple-600/30">
                 2
               </div>
-              <h3 className="text-base font-bold text-white font-heading">Invite Friends</h3>
+              <h3 className="text-base font-bold text-white font-heading">Share Party Code</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Copy your unique 5-letter party code or shareable invite link and send it over chat or Discord.
+                Copy your unique 5-letter party room code (e.g. WK-7F29Q) or send a 1-click shareable link.
               </p>
             </div>
 
-            <div className="text-center space-y-3 p-6 rounded-2xl bg-[#111113]/60 border border-zinc-800/80">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-extrabold font-heading flex items-center justify-center mx-auto text-lg shadow-lg shadow-indigo-600/30">
+            <div className="text-center space-y-3 p-6 rounded-3xl bg-[#0F1222]/80 border border-slate-800">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-extrabold font-heading flex items-center justify-center mx-auto text-lg shadow-lg shadow-purple-600/30">
                 3
               </div>
-              <h3 className="text-base font-bold text-white font-heading">Watch in Sync</h3>
+              <h3 className="text-base font-bold text-white font-heading">Stream & Chat in Sync</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Play, pause, seek, chat, and react in real-time together without missing a single second.
+                Play, pause, seek, request songs, and react together in real-time with crystal clear synchronization.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. Footer */}
-      <footer className="mt-auto border-t border-zinc-800/80 bg-[#09090B] py-8 px-4 text-center text-xs text-zinc-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Tv className="w-4 h-4 text-indigo-500" />
-            <span className="font-bold text-zinc-300 font-heading">WatchParty</span>
-            <span>— Real-Time Synchronized Streaming</span>
+      {/* 5. Audio & Video Flow Lifecycle Switcher */}
+      <section id="flow-lifecycle" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17]">
+        <div className="max-w-5xl mx-auto space-y-10">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-heading">
+              Platform Streaming Lifecycle
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-400">
+              Switch between Audio and Video flows to see how synchronization happens behind the scenes.
+            </p>
+
+            {/* Tab Switcher */}
+            <div className="inline-flex p-1 rounded-2xl bg-slate-900 border border-slate-800">
+              <button
+                onClick={() => setActiveFlowTab('audio')}
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeFlowTab === 'audio'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                AUDIO FLOW
+              </button>
+              <button
+                onClick={() => setActiveFlowTab('video')}
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeFlowTab === 'video'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                VIDEO FLOW
+              </button>
+            </div>
           </div>
-          <p>© 2026 WatchParty. Built for high performance and low-latency collaboration.</p>
+
+          {/* 4 Step Horizontal Flow Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-2xl bg-[#0F1222] border border-slate-800 space-y-2">
+              <span className="text-[10px] font-extrabold text-purple-400 font-mono">STEP 01</span>
+              <h4 className="text-sm font-bold text-white font-heading">
+                {activeFlowTab === 'audio' ? 'Pick Song / Despacito' : 'Paste YouTube URL'}
+              </h4>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                {activeFlowTab === 'audio'
+                  ? 'Select from preloaded top tracks or search your favorite beats.'
+                  : 'Enter any valid YouTube 11-char video ID or share link.'}
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#0F1222] border border-slate-800 space-y-2">
+              <span className="text-[10px] font-extrabold text-purple-400 font-mono">STEP 02</span>
+              <h4 className="text-sm font-bold text-white font-heading">
+                {activeFlowTab === 'audio' ? 'Save in Audio Locker' : 'Load Video Metadata'}
+              </h4>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                {activeFlowTab === 'audio'
+                  ? 'Store presets in your cloud quota for quick party access.'
+                  : 'Extract thumbnails, duration, and stream endpoints.'}
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#0F1222] border border-slate-800 space-y-2">
+              <span className="text-[10px] font-extrabold text-purple-400 font-mono">STEP 03</span>
+              <h4 className="text-sm font-bold text-white font-heading">Queue in Room</h4>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Host dispatches track event to all connected WebSocket clients.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#0F1222] border border-slate-800 space-y-2 relative overflow-hidden">
+              <div className="absolute top-0 right-0 px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[9px] font-bold rounded-bl-lg">
+                LIVE
+              </div>
+              <span className="text-[10px] font-extrabold text-emerald-400 font-mono">STEP 04</span>
+              <h4 className="text-sm font-bold text-white font-heading">Synced Playback</h4>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Continuous clock sync keeps all viewers locked within 0.75s drift.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Featured / Active Rooms Showcase */}
+      <section id="featured-rooms" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#070913]">
+        <div className="max-w-6xl mx-auto space-y-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold mb-1">
+                <Radio className="w-3.5 h-3.5 animate-pulse" />
+                <span>Active Rooms</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-heading">
+                Popular Watch Party Rooms
+              </h2>
+            </div>
+            <Link to="/join">
+              <Button variant="secondary" size="sm" className="text-xs">
+                Enter Custom Room Code
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Room Card 1: Despacito Latin Party */}
+            <div className="p-5 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-purple-500/40 transition-all space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 relative">
+                  <img
+                    src="https://img.youtube.com/vi/kJQP7kiw5Fk/hqdefault.jpg"
+                    alt="Despacito Latin Hits"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 text-[10px] font-bold">
+                    ● 8 LISTENING
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white font-heading truncate">Despacito & Latin Beats Lounge</h3>
+                  <p className="text-[11px] text-zinc-400">Host: DJ Carlos • Code: WK-DESPA</p>
+                </div>
+              </div>
+              <Link to="/join/WK-DESPA">
+                <Button size="sm" className="w-full bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white text-xs">
+                  Join Party
+                </Button>
+              </Link>
+            </div>
+
+            {/* Room Card 2: Lofi Chill & Study */}
+            <div className="p-5 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-purple-500/40 transition-all space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 relative">
+                  <img
+                    src="https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg"
+                    alt="Lofi Study Room"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 text-[10px] font-bold">
+                    ● 14 STUDYING
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white font-heading truncate">Midnight Lo-Fi Coding Session</h3>
+                  <p className="text-[11px] text-zinc-400">Host: Sarah • Code: WK-STUDY</p>
+                </div>
+              </div>
+              <Link to="/join/WK-STUDY">
+                <Button size="sm" className="w-full bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white text-xs">
+                  Join Party
+                </Button>
+              </Link>
+            </div>
+
+            {/* Room Card 3: Synthwave Retro */}
+            <div className="p-5 rounded-3xl bg-[#0F1222] border border-slate-800 hover:border-purple-500/40 transition-all space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 relative">
+                  <img
+                    src="https://img.youtube.com/vi/4xDzrJKXOOY/hqdefault.jpg"
+                    alt="Synthwave Chill"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 text-[10px] font-bold">
+                    ● 6 VIBING
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white font-heading truncate">Cyberpunk & Retro Synthwave</h3>
+                  <p className="text-[11px] text-zinc-400">Host: Alex • Code: WK-SYNTH</p>
+                </div>
+              </div>
+              <Link to="/join/WK-SYNTH">
+                <Button size="sm" className="w-full bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white text-xs">
+                  Join Party
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Community Reviews & Testimonials */}
+      <section id="reviews" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17]">
+        <div className="max-w-6xl mx-auto space-y-12">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold">
+              <Star className="w-3.5 h-3.5 fill-current" />
+              <span>Community Feedback</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-heading">
+              Loved by Music Lovers & Watch Partiers
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-400">
+              See what hosts and listeners have to say about their synchronization experience.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {reviews.slice(0, 3).map((rev) => (
+              <div
+                key={rev.id}
+                className="p-6 rounded-3xl bg-[#0F1222] border border-slate-800 flex flex-col justify-between space-y-4 shadow-xl"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center gap-1 text-amber-400">
+                    {Array.from({ length: rev.stars }).map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed italic">
+                    "{rev.text}"
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 pt-3 border-t border-slate-800/80">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+                    {rev.author.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">{rev.author}</h4>
+                    <p className="text-[10px] text-zinc-400">{rev.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center pt-2">
+            <Link to="/profile">
+              <Button variant="ghost" size="sm" className="text-purple-400 text-xs hover:text-purple-300">
+                Write Your Own Review in Profile →
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Footer */}
+      <footer className="mt-auto border-t border-slate-800/80 bg-[#070913] py-10 px-4 sm:px-6 lg:px-8 text-xs text-zinc-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white">
+              <Headphones className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-bold text-zinc-200 font-heading">BeatsLink WatchParty</span>
+              <p className="text-[11px] text-zinc-500">Suno Dil Ki • Real-Time Synchronized Streaming</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6 text-xs text-zinc-400">
+            <Link to="/help" className="hover:text-white transition-colors">
+              Help Manual
+            </Link>
+            <Link to="/profile" className="hover:text-white transition-colors">
+              Profile
+            </Link>
+            <Link to="/login" className="hover:text-white transition-colors">
+              Sign In
+            </Link>
+            <Link to="/create" className="hover:text-white transition-colors">
+              Host Party
+            </Link>
+          </div>
+
+          <p>© 2026 BeatsLink Online. All rights reserved.</p>
         </div>
       </footer>
     </div>
