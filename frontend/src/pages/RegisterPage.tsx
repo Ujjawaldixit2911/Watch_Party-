@@ -9,7 +9,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
@@ -24,7 +23,7 @@ export const RegisterPage: React.FC = () => {
   const redirectPath = queryParams.get('redirect') || '/create';
 
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(queryParams.get('email') || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -49,8 +48,8 @@ export const RegisterPage: React.FC = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (password.length < 4) {
+      setError('Password must be at least 4 characters.');
       return;
     }
 
@@ -66,9 +65,11 @@ export const RegisterPage: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const success = await register(cleanName, cleanEmail, password);
-      if (success) {
+      const res = await register(cleanName, cleanEmail, password);
+      if (res.success) {
         navigate(redirectPath);
+      } else {
+        setError(res.message || 'Registration failed. Please try again.');
       }
     } catch (err: any) {
       setError(err?.message || 'Registration failed. Please try again.');
@@ -153,12 +154,9 @@ export const RegisterPage: React.FC = () => {
               icon={<Mail className="w-4 h-4 text-zinc-400" />}
               required
             />
-            <p className="text-[10px] text-zinc-500 mt-1 pl-1">
-              * Temporary or disposable email addresses will be rejected.
-            </p>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-zinc-300">Password</label>
               <button
@@ -173,7 +171,7 @@ export const RegisterPage: React.FC = () => {
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="At least 6 characters"
+                placeholder="At least 4 characters"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -186,7 +184,7 @@ export const RegisterPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-xs font-semibold text-zinc-300">Confirm Password</label>
             <div className="relative">
               <input
@@ -200,23 +198,20 @@ export const RegisterPage: React.FC = () => {
                 className="w-full bg-[#151932] border border-slate-700/80 rounded-xl px-3.5 py-2.5 pl-10 text-xs sm:text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
                 required
               />
-              <ShieldCheck className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             </div>
           </div>
 
-          <div className="pt-1">
-            <label className="flex items-start gap-2 cursor-pointer text-xs text-zinc-400">
-              <input
-                type="checkbox"
-                checked={agreeTerms}
-                onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-purple-600 focus:ring-purple-500/30 mt-0.5"
-              />
-              <span>
-                I agree to the{' '}
-                <span className="text-purple-400 underline cursor-pointer">Terms of Service</span> and{' '}
-                <span className="text-purple-400 underline cursor-pointer">Privacy Policy</span>.
-              </span>
+          <div className="flex items-center gap-2 text-xs pt-1">
+            <input
+              type="checkbox"
+              id="terms"
+              checked={agreeTerms}
+              onChange={(e) => setAgreeTerms(e.target.checked)}
+              className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-purple-600 focus:ring-purple-500/30"
+            />
+            <label htmlFor="terms" className="text-zinc-400 cursor-pointer">
+              I agree to WatchParty Terms & Community Guidelines
             </label>
           </div>
 
@@ -238,7 +233,7 @@ export const RegisterPage: React.FC = () => {
               to={`/login${redirectPath !== '/create' ? `?redirect=${encodeURIComponent(redirectPath)}` : ''}`}
               className="text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-2"
             >
-              Sign In
+              Sign in
             </Link>
           </p>
         </div>

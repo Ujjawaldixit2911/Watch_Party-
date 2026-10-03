@@ -18,7 +18,7 @@ import { Input } from '../components/ui/Input';
 export const JoinRoomPage: React.FC = () => {
   const { roomCode: paramCode } = useParams<{ roomCode?: string }>();
   const { joinRoom } = useRoom();
-  const { user } = useAuth();
+  const { user, addJoinedRoom } = useAuth();
   const navigate = useNavigate();
 
   const [roomCode, setRoomCode] = useState(paramCode || '');
@@ -82,6 +82,8 @@ export const JoinRoomPage: React.FC = () => {
     try {
       const success = await joinRoom(formattedCode, trimmedUser);
       if (success) {
+        const partyName = roomStatusMessage?.replace('Active Party: ', '') || 'WatchParty Room';
+        addJoinedRoom(formattedCode, partyName);
         navigate(`/room/${formattedCode}`);
       }
     } catch (err: any) {
@@ -170,16 +172,16 @@ export const JoinRoomPage: React.FC = () => {
             isLoading={isLoading}
             className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-purple-600/30 mt-2"
           >
-            Enter Party
+            Enter Synchronized Party
             <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </form>
 
-        <div className="text-center pt-2">
-          <p className="text-xs text-zinc-500">
-            Want to start your own room?{' '}
+        <div className="pt-2 border-t border-slate-800/80 text-center">
+          <p className="text-xs text-zinc-400">
+            Want to host your own audio or video session?{' '}
             <Link to="/create" className="text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-2">
-              Create a party
+              Create a room
             </Link>
           </p>
         </div>

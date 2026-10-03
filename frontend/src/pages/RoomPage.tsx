@@ -7,6 +7,7 @@ import {
   Info,
 } from 'lucide-react';
 import { useRoom } from '../context/RoomContext';
+import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { getSession } from '../utils/storage';
@@ -24,6 +25,7 @@ import { Button } from '../components/ui/Button';
 export const RoomPage: React.FC = () => {
   const { roomCode: paramCode } = useParams<{ roomCode: string }>();
   const { state, joinRoom } = useRoom();
+  const { user, addJoinedRoom } = useAuth();
   const { canControlPlayback, isParticipant } = usePermissions();
   const navigate = useNavigate();
 
@@ -47,7 +49,7 @@ export const RoomPage: React.FC = () => {
 
   // Direct URL visitor join prompt
   const [isJoinPromptOpen, setIsJoinPromptOpen] = useState(false);
-  const [guestUsername, setGuestUsername] = useState('');
+  const [guestUsername, setGuestUsername] = useState(user?.name || '');
   const [joinError, setJoinError] = useState('');
   const [isJoining, setIsJoining] = useState(false);
 
@@ -69,11 +71,18 @@ export const RoomPage: React.FC = () => {
     }
   }, [roomCode, state.currentUser, state.room]);
 
+  // Record room in user's joined history when active
+  useEffect(() => {
+    if (state.room && user) {
+      addJoinedRoom(state.room.roomCode, state.room.name || 'Watch Party Room');
+    }
+  }, [state.room?.roomCode]);
+
   const handleGuestJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     setJoinError('');
 
-    const trimmed = guestUsername.trim();
+    const trimmed = guestUsername.trim() || user?.name || '';
     if (!trimmed || trimmed.length < 2) {
       setJoinError('Username must be at least 2 characters.');
       return;
@@ -84,6 +93,7 @@ export const RoomPage: React.FC = () => {
       const success = await joinRoom(roomCode, trimmed);
       if (success) {
         setIsJoinPromptOpen(false);
+        addJoinedRoom(roomCode, state.room?.name || 'Watch Party Room');
       }
     } catch (err: any) {
       setJoinError(err.message || 'Failed to join room.');
@@ -164,47 +174,54 @@ export const RoomPage: React.FC = () => {
           <RequestControl />
         </div>
 
-        {/* Right Side: Sidebar for Participants & Live Chat (Col span 4 on desktop, stacked on mobile) */}
-        <div className="lg:col-span-4 flex flex-col space-y-4 h-[550px] lg:h-auto">
-          {/* Mobile & Tablet Tab Toggle */}
-          <div className="flex lg:hidden bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+        {/* Right Side: Tabbed Chat & Participant List (Col span 4 on large screens) */}
+        <div className="lg:col-span-4 flex flex-col h-[600px] lg:h-auto min-h-[500px]">
+          {/* Mobile View Toggle */}
+          <div className="flex sm:hidden mb-2 bg-[#111113] p-1 rounded-xl border border-zinc-800">
             <button
               onClick={() => setActiveMobileTab('chat')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
                 activeMobileTab === 'chat'
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? 'bg-indigo-600 text-white'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
               <MessageSquare className="w-3.5 h-3.5" />
-              Live Chat
+              <span>Chat ({state.chatHistory.length})</span>
             </button>
             <button
               onClick={() => setActiveMobileTab('participants')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
                 activeMobileTab === 'participants'
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? 'bg-indigo-600 text-white'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
-              Participants ({state.participants.length})
+              <span>Members ({state.participants.length})</span>
             </button>
           </div>
 
-          {/* Desktop Layout: Stacked Participants (top) & Chat (bottom) */}
-          <div className="hidden lg:flex flex-col space-y-4 h-full">
-            <div className="h-56">
-              <ParticipantList />
-            </div>
-            <div className="flex-1 min-h-[360px]">
+          <div className="flex-1 grid grid-rows-1 lg:grid-rows-2 gap-4">
+            {/* 1. Chat Container (visible if chat tab active or on large screens) */}
+            <div
+              className={`h-full min-h-0 ${
+                activeMobileTab === 'chat' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'
+              }`}
+            >
               <Chat />
             </div>
-          </div>
 
-          {/* Mobile/Tablet Tab View */}
-          <div className="flex-1 lg:hidden min-h-0">
-            {activeMobileTab === 'chat' ? <Chat /> : <ParticipantList />}
+            {/* 2. Participant List Container */}
+            <div
+              className={`h-full min-h-0 ${
+                activeMobileTab === 'participants'
+                  ? 'flex flex-col'
+                  : 'hidden lg:flex lg:flex-col'
+              }`}
+            >
+              <ParticipantList />
+            </div>
           </div>
         </div>
       </main>
@@ -215,17 +232,20 @@ export const RoomPage: React.FC = () => {
         onClose={() => setIsChangeVideoModalOpen(false)}
       />
 
-      {/* Direct Link Visitor Username Prompt Modal */}
+      {/* Direct link guest join prompt modal */}
       <Modal
         isOpen={isJoinPromptOpen}
-        onClose={() => navigate('/')}
+        onClose={() => {}} // Non-closable without entering username
         title="Join Watch Party"
-        description={`You've been invited to party room ${roomCode}. Enter your display name to join.`}
       >
         <form onSubmit={handleGuestJoin} className="space-y-4">
+          <p className="text-xs text-zinc-400">
+            You're joining room <span className="font-mono text-indigo-400 font-bold">{roomCode}</span>. Please choose a display name to participate.
+          </p>
+
           <Input
-            label="Display Username"
-            placeholder="e.g. Charlie"
+            label="Your Display Name"
+            placeholder="e.g. Alex, Maya"
             value={guestUsername}
             onChange={(e) => {
               setGuestUsername(e.target.value);
@@ -236,12 +256,22 @@ export const RoomPage: React.FC = () => {
             required
           />
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-zinc-800/80">
-            <Button variant="ghost" size="sm" type="button" onClick={() => navigate('/')}>
-              Cancel
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+            >
+              Back to Home
             </Button>
-            <Button variant="primary" size="sm" type="submit" isLoading={isJoining}>
-              Join Party Now
+            <Button
+              type="submit"
+              size="sm"
+              isLoading={isJoining}
+              className="bg-indigo-600 hover:bg-indigo-500 font-semibold"
+            >
+              Enter Party
             </Button>
           </div>
         </form>

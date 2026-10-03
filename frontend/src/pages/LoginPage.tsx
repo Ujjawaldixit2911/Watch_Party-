@@ -9,6 +9,8 @@ import {
   ArrowLeft,
   Sparkles,
   Zap,
+  AlertCircle,
+  UserPlus,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
@@ -27,11 +29,13 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
+  const [needsRegister, setNeedsRegister] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setNeedsRegister(false);
 
     const cleanEmail = email.trim();
     if (!cleanEmail || !cleanEmail.includes('@')) {
@@ -46,9 +50,14 @@ export const LoginPage: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const success = await login(cleanEmail, password);
-      if (success) {
+      const res = await login(cleanEmail, password);
+      if (res.success) {
         navigate(redirectPath);
+      } else {
+        setError(res.message || 'Login failed. Please verify your credentials.');
+        if (res.message?.toLowerCase().includes('create an account') || res.message?.toLowerCase().includes('no account')) {
+          setNeedsRegister(true);
+        }
       }
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please verify your credentials.');
@@ -58,7 +67,7 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleDemoLogin = () => {
-    guestLogin('Aman Sharma');
+    guestLogin('Alex Carter');
     navigate(redirectPath);
   };
 
@@ -103,14 +112,28 @@ export const LoginPage: React.FC = () => {
           </h1>
           <p className="text-xs text-zinc-400">
             {redirectPath === '/create'
-              ? 'Please log in to host and create a synchronized room.'
+              ? 'Please log in with your registered account to host a synchronized room.'
               : 'Access your saved songs locker, sync parties, and host rooms.'}
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 font-medium">
-            {error}
+          <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-2xl text-xs text-red-300 space-y-2">
+            <div className="flex items-center gap-2 font-medium">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+            {needsRegister && (
+              <div className="pt-1">
+                <Link
+                  to={`/register?redirect=${encodeURIComponent(redirectPath)}&email=${encodeURIComponent(email)}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md transition-colors"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Create New Account Now</span>
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -123,6 +146,7 @@ export const LoginPage: React.FC = () => {
             onChange={(e) => {
               setEmail(e.target.value);
               setError('');
+              setNeedsRegister(false);
             }}
             icon={<Mail className="w-4 h-4 text-zinc-400" />}
             autoFocus
@@ -193,7 +217,7 @@ export const LoginPage: React.FC = () => {
             className="w-full text-xs text-purple-300 border-purple-500/20 hover:bg-purple-600/10 flex items-center justify-center gap-2"
           >
             <Zap className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-            <span>1-Click Demo Host Login</span>
+            <span>1-Click Demo Host Login (Alex Carter)</span>
           </Button>
 
           <p className="text-xs text-zinc-400">
