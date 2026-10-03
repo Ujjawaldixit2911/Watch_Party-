@@ -8,7 +8,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  Zap,
   AlertCircle,
   UserPlus,
 } from 'lucide-react';
@@ -17,12 +16,12 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 
 export const LoginPage: React.FC = () => {
-  const { login, guestLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
-  const redirectPath = queryParams.get('redirect') || '/';
+  const redirectPath = queryParams.get('redirect') || '/profile';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,7 +54,10 @@ export const LoginPage: React.FC = () => {
         navigate(redirectPath);
       } else {
         setError(res.message || 'Login failed. Please verify your credentials.');
-        if (res.message?.toLowerCase().includes('create an account') || res.message?.toLowerCase().includes('no account')) {
+        if (
+          res.message?.toLowerCase().includes('create an account') ||
+          res.message?.toLowerCase().includes('no account')
+        ) {
           setNeedsRegister(true);
         }
       }
@@ -66,14 +68,9 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleDemoLogin = () => {
-    guestLogin('Alex Carter');
-    navigate(redirectPath);
-  };
-
   return (
     <div className="min-h-screen bg-[#070913] text-zinc-100 flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden selection:bg-purple-500 selection:text-white">
-      {/* Dynamic background ambient glows */}
+      {/* Background ambient glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-gradient-to-r from-purple-600/20 via-indigo-600/20 to-pink-600/15 blur-[140px] rounded-full pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-[300px] h-[300px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none" />
 
@@ -202,28 +199,16 @@ export const LoginPage: React.FC = () => {
             isLoading={isLoading}
             className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-purple-600/30 mt-2"
           >
-            Sign In to Room
+            Sign In
             <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </form>
 
-        {/* Demo Fast Login */}
-        <div className="pt-2 border-t border-slate-800/80 space-y-3 text-center">
-          <Button
-            type="button"
-            variant="glass"
-            size="sm"
-            onClick={handleDemoLogin}
-            className="w-full text-xs text-purple-300 border-purple-500/20 hover:bg-purple-600/10 flex items-center justify-center gap-2"
-          >
-            <Zap className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-            <span>1-Click Demo Host Login (Alex Carter)</span>
-          </Button>
-
+        <div className="pt-2 border-t border-slate-800/80 text-center">
           <p className="text-xs text-zinc-400">
             Don't have an account yet?{' '}
             <Link
-              to={`/register${redirectPath !== '/' ? `?redirect=${encodeURIComponent(redirectPath)}` : ''}`}
+              to={`/register${redirectPath !== '/profile' ? `?redirect=${encodeURIComponent(redirectPath)}` : ''}`}
               className="text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-2"
             >
               Sign up free

@@ -11,7 +11,6 @@ import {
   Radio,
   Music,
   Lock,
-  Zap,
 } from 'lucide-react';
 import { useRoom } from '../context/RoomContext';
 import { useAuth, DEFAULT_LOCKER_SONGS } from '../context/AuthContext';
@@ -21,7 +20,7 @@ import { toast } from 'sonner';
 
 export const CreateRoomPage: React.FC = () => {
   const { createRoom, sendChangeVideo } = useRoom();
-  const { user, isAuthenticated, guestLogin, addSavedRoom } = useAuth();
+  const { user, isAuthenticated, addSavedRoom } = useAuth();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState(user?.name || '');
@@ -97,18 +96,6 @@ export const CreateRoomPage: React.FC = () => {
                 Create Free Account
               </Button>
             </Link>
-
-            <div className="pt-2 border-t border-slate-800/80">
-              <Button
-                variant="glass"
-                size="sm"
-                onClick={() => guestLogin('Party Host')}
-                className="w-full text-xs text-purple-300 border-purple-500/20 hover:bg-purple-600/10 flex items-center justify-center gap-2"
-              >
-                <Zap className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-                <span>1-Click Fast Demo Host Login</span>
-              </Button>
-            </div>
           </div>
         </div>
       </div>
