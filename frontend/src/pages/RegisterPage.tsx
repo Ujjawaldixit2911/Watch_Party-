@@ -20,7 +20,7 @@ export const RegisterPage: React.FC = () => {
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
-  const redirectPath = queryParams.get('redirect') || '/create';
+  const redirectPath = queryParams.get('redirect') || '/profile';
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState(queryParams.get('email') || '');
@@ -230,7 +230,7 @@ export const RegisterPage: React.FC = () => {
           <p className="text-xs text-zinc-400">
             Already have an account?{' '}
             <Link
-              to={`/login${redirectPath !== '/create' ? `?redirect=${encodeURIComponent(redirectPath)}` : ''}`}
+              to={`/login${redirectPath !== '/profile' ? `?redirect=${encodeURIComponent(redirectPath)}` : ''}`}
               className="text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-2"
             >
               Sign in

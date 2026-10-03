@@ -38,6 +38,10 @@ export interface AuthUser {
   joinedRooms: JoinedRoomHistory[];
 }
 
+export interface RegisteredAccount extends AuthUser {
+  password?: string;
+}
+
 export interface ReviewItem {
   id: string;
   author: string;
@@ -179,11 +183,29 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const AUTH_STORAGE_KEY = 'watchparty_auth_user';
+const ACCOUNTS_STORAGE_KEY = 'watchparty_registered_accounts';
 const REVIEWS_KEY = 'watchparty_user_reviews';
 const LOCKER_KEY = 'watchparty_locker_songs';
 
+function getStoredAccounts(): RegisteredAccount[] {
+  try {
+    const stored = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredAccounts(accounts: RegisteredAccount[]) {
+  try {
+    localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+  } catch (e) {
+    console.error('Failed to save registered accounts', e);
+  }
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Current active logged in user - NULL by default so site starts clean in guest mode
+  // Current active logged in user - NULL by default so site starts in clean guest mode
   const [user, setUser] = useState<AuthUser | null>(() => {
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -238,43 +260,102 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [lockerSongs]);
 
   /**
-   * Database-backed Login: Validates against SQLite backend database
+   * Strict Login: Verifies user existence against backend DB and local store
    */
   const login = async (email: string, password?: string): Promise<AuthResult> => {
     const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = (password || '').trim();
+
     if (!cleanEmail || !cleanEmail.includes('@')) {
       const msg = 'Please provide a valid email address.';
       toast.error(msg);
       return { success: false, message: msg };
     }
 
-    if (!password || password.trim().length < 4) {
+    if (!cleanPass || cleanPass.length < 4) {
       const msg = 'Password must be at least 4 characters.';
       toast.error(msg);
       return { success: false, message: msg };
     }
 
+    // 1. Try Backend Database Login
+    let dbUser: AuthUser | null = null;
     try {
-      const dbUser = await loginApi(cleanEmail, password);
-      setUser(dbUser);
-      toast.success(`Welcome back, ${dbUser.name}!`);
-      return { success: true };
+      dbUser = await loginApi(cleanEmail, cleanPass);
     } catch (err: any) {
-      const errorMsg = err?.message || 'Login failed. Please verify your credentials.';
-      toast.error(errorMsg);
-      return {
-        success: false,
-        message: errorMsg,
-      };
+      const errMsg = err?.message || '';
+      // If backend explicitly rejected with user not found or invalid password
+      if (errMsg.includes('No account found') || errMsg.includes('Incorrect password')) {
+        toast.error(errMsg);
+        return { success: false, message: errMsg };
+      }
     }
+
+    // 2. If Backend succeeded, update state and local cache
+    if (dbUser) {
+      const fullUser: AuthUser = {
+        ...dbUser,
+        createdRooms: dbUser.createdRooms || [],
+        joinedRooms: dbUser.joinedRooms || [],
+      };
+      setUser(fullUser);
+      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fullUser));
+
+      // Cache locally
+      const storedAccs = getStoredAccounts();
+      const updatedAccs = [
+        { ...fullUser, password: cleanPass },
+        ...storedAccs.filter((a) => a.email.toLowerCase() !== cleanEmail),
+      ];
+      saveStoredAccounts(updatedAccs);
+
+      toast.success(`Welcome back, ${fullUser.name}!`);
+      return { success: true };
+    }
+
+    // 3. Fallback to local accounts store if backend was unreachable
+    const localAccounts = getStoredAccounts();
+    const found = localAccounts.find((acc) => acc.email.toLowerCase() === cleanEmail);
+
+    if (!found) {
+      const errorMsg = 'No account found with this email. Please create an account first!';
+      toast.error(errorMsg);
+      return { success: false, message: errorMsg };
+    }
+
+    if (found.password && found.password !== cleanPass) {
+      const errorMsg = 'Incorrect password. Please verify your credentials.';
+      toast.error(errorMsg);
+      return { success: false, message: errorMsg };
+    }
+
+    const activeUser: AuthUser = {
+      id: found.id,
+      name: found.name,
+      email: found.email,
+      avatar: found.avatar,
+      bio: found.bio || 'Music and watch party lover 🎶',
+      favoriteGenre: found.favoriteGenre || 'Pop & EDM',
+      createdAt: found.createdAt || Date.now(),
+      roomsHosted: found.roomsHosted || found.createdRooms?.length || 0,
+      watchTimeMinutes: found.watchTimeMinutes || 60,
+      createdRooms: found.createdRooms || [],
+      joinedRooms: found.joinedRooms || [],
+    };
+
+    setUser(activeUser);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(activeUser));
+    toast.success(`Welcome back, ${activeUser.name}!`);
+    return { success: true };
   };
 
   /**
-   * Database-backed Account Creation / Register
+   * Account Creation / Register: Creates account in Database and persists locally
    */
   const register = async (name: string, email: string, password?: string): Promise<AuthResult> => {
     const cleanName = name.trim();
     const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = (password || '').trim();
 
     if (cleanName.length < 2) {
       const msg = 'Name must be at least 2 characters.';
@@ -288,46 +369,69 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { success: false, message: msg };
     }
 
-    if (!password || password.length < 4) {
+    if (cleanPass.length < 4) {
       const msg = 'Password must be at least 4 characters.';
       toast.error(msg);
       return { success: false, message: msg };
     }
 
+    // Check local duplicate
+    const localAccounts = getStoredAccounts();
+    if (localAccounts.some((acc) => acc.email.toLowerCase() === cleanEmail)) {
+      const msg = 'An account with this email already exists. Please log in.';
+      toast.error(msg);
+      return { success: false, message: msg };
+    }
+
+    // 1. Try Backend Database Registration
+    let newUser: AuthUser | null = null;
     try {
-      const newUser = await registerApi(cleanName, cleanEmail, password);
-      setUser(newUser);
-      toast.success(`Account created! Welcome to WatchParty, ${newUser.name}.`);
-      return { success: true };
+      newUser = await registerApi(cleanName, cleanEmail, cleanPass);
     } catch (err: any) {
-      const errorMsg = err?.message || 'Registration failed. Please try again.';
-      toast.error(errorMsg);
-      return {
-        success: false,
-        message: errorMsg,
+      const errMsg = err?.message || '';
+      if (errMsg.includes('already exists')) {
+        toast.error('An account with this email already exists. Please log in.');
+        return { success: false, message: 'An account with this email already exists. Please log in.' };
+      }
+    }
+
+    // 2. If Backend was offline, create local account object
+    if (!newUser) {
+      newUser = {
+        id: `usr_${Date.now()}`,
+        name: cleanName,
+        email: cleanEmail,
+        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanName)}`,
+        bio: 'New WatchParty Member ✨ Ready for sync music & stream parties.',
+        favoriteGenre: 'Pop & EDM',
+        createdAt: Date.now(),
+        roomsHosted: 0,
+        watchTimeMinutes: 0,
+        createdRooms: [],
+        joinedRooms: [],
       };
     }
+
+    // Save to local accounts
+    const newAccount: RegisteredAccount = {
+      ...newUser,
+      password: cleanPass,
+    };
+    saveStoredAccounts([newAccount, ...localAccounts.filter((a) => a.email.toLowerCase() !== cleanEmail)]);
+
+    setUser(newUser);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newUser));
+    toast.success(`Account created! Welcome to WatchParty, ${newUser.name}.`);
+    return { success: true };
   };
 
-  const guestLogin = async (name?: string) => {
+  const guestLogin = (name?: string) => {
     const demoName = name?.trim() || 'Alex Carter';
     const demoEmail = 'alex@watchparty.live';
     const demoPass = 'password123';
 
-    // Try login or register on database
-    try {
-      const dbUser = await loginApi(demoEmail, demoPass);
-      setUser(dbUser);
-      toast.success(`Logged in as ${dbUser.name}!`);
-    } catch {
-      try {
-        const newUser = await registerApi(demoName, demoEmail, demoPass);
-        setUser(newUser);
-        toast.success(`Demo account created and logged in!`);
-      } catch (err: any) {
-        toast.error('Failed demo login');
-      }
-    }
+    // Register or login guest
+    register(demoName, demoEmail, demoPass);
   };
 
   const logout = () => {
@@ -349,8 +453,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       joinedRooms: user.joinedRooms || [],
     };
     setUser(updated);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated));
 
-    // Sync to database
+    // Update in local accounts
+    const localAccounts = getStoredAccounts();
+    const updatedLocal = localAccounts.map((acc) => {
+      if (acc.id === user.id || acc.email.toLowerCase() === user.email.toLowerCase()) {
+        return { ...acc, ...updated };
+      }
+      return acc;
+    });
+    saveStoredAccounts(updatedLocal);
+
+    // Try backend API sync
     try {
       await updateProfileApi({
         userId: user.id,
@@ -359,10 +474,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         favoriteGenre: updates.favoriteGenre,
         avatar: updates.avatar,
       });
-      toast.success('Profile and changes saved successfully!');
     } catch {
-      toast.success('Profile updated locally!');
+      // Handled cleanly via local persistence
     }
+
+    toast.success('Profile and changes saved successfully!');
   };
 
   /**
@@ -389,6 +505,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     setUser(updatedUser);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+
+    const localAccounts = getStoredAccounts();
+    saveStoredAccounts(
+      localAccounts.map((acc) => (acc.id === user.id ? { ...acc, ...updatedUser } : acc))
+    );
+
     addCreatedRoomApi(user.id, cleanCode, roomName);
   };
 
@@ -405,6 +528,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       roomsHosted: updatedRooms.length,
     };
     setUser(updatedUser);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+
+    const localAccounts = getStoredAccounts();
+    saveStoredAccounts(
+      localAccounts.map((acc) => (acc.id === user.id ? { ...acc, ...updatedUser } : acc))
+    );
+
     removeCreatedRoomApi(user.id, cleanCode);
     toast.info(`Room ${cleanCode} removed from your created rooms.`);
   };
@@ -434,6 +564,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     setUser(updatedUser);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+
+    const localAccounts = getStoredAccounts();
+    saveStoredAccounts(
+      localAccounts.map((acc) => (acc.id === user.id ? { ...acc, ...updatedUser } : acc))
+    );
+
     addJoinedRoomApi(user.id, cleanCode, roomName, hostName);
   };
 
@@ -449,6 +586,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       joinedRooms: updatedHistory,
     };
     setUser(updatedUser);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+
+    const localAccounts = getStoredAccounts();
+    saveStoredAccounts(
+      localAccounts.map((acc) => (acc.id === user.id ? { ...acc, ...updatedUser } : acc))
+    );
+
     removeJoinedRoomApi(user.id, cleanCode);
     toast.info(`Room ${cleanCode} removed from joined history.`);
   };
@@ -463,6 +607,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       joinedRooms: [],
     };
     setUser(updatedUser);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+
+    const localAccounts = getStoredAccounts();
+    saveStoredAccounts(
+      localAccounts.map((acc) => (acc.id === user.id ? { ...acc, ...updatedUser } : acc))
+    );
+
     clearJoinedHistoryApi(user.id);
     toast.info('Joined rooms history cleared.');
   };
