@@ -1,5 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
+import {
+  loginApi,
+  registerApi,
+  updateProfileApi,
+  addCreatedRoomApi,
+  addJoinedRoomApi,
+  removeCreatedRoomApi,
+  removeJoinedRoomApi,
+  clearJoinedHistoryApi,
+} from '../services/api';
 
 export interface SavedRoom {
   code: string;
@@ -26,10 +36,6 @@ export interface AuthUser {
   watchTimeMinutes: number;
   createdRooms: SavedRoom[];
   joinedRooms: JoinedRoomHistory[];
-}
-
-export interface RegisteredAccount extends AuthUser {
-  password?: string;
 }
 
 export interface ReviewItem {
@@ -135,47 +141,6 @@ const INITIAL_REVIEWS: ReviewItem[] = [
   },
 ];
 
-const DEFAULT_SEED_ACCOUNTS: RegisteredAccount[] = [
-  {
-    id: 'usr_demo_1',
-    name: 'Alex Carter',
-    email: 'alex@watchparty.live',
-    password: 'password123',
-    avatar: '/assets/3d_dj_hero.jpg',
-    bio: '3D DJ Host & Music Producer. Streaming high quality synchronized beats.',
-    favoriteGenre: 'Pop & EDM',
-    createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    roomsHosted: 2,
-    watchTimeMinutes: 240,
-    createdRooms: [
-      {
-        code: 'WK-8F92A',
-        name: "Alex's Friday DJ Stage",
-        createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      },
-      {
-        code: 'WK-3K19P',
-        name: 'Late Night Beats & Chills',
-        createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      },
-    ],
-    joinedRooms: [
-      {
-        code: 'WK-99X21',
-        name: 'Lo-Fi Chill Study Squad',
-        joinedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-        hostName: 'Maya Beats',
-      },
-      {
-        code: 'WK-12T88',
-        name: 'Synthwave Night Drive',
-        joinedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-        hostName: 'Neon DJ',
-      },
-    ],
-  },
-];
-
 interface AuthResult {
   success: boolean;
   message?: string;
@@ -214,31 +179,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const AUTH_STORAGE_KEY = 'watchparty_auth_user';
-const ACCOUNTS_STORAGE_KEY = 'watchparty_registered_accounts';
 const REVIEWS_KEY = 'watchparty_user_reviews';
 const LOCKER_KEY = 'watchparty_locker_songs';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Load registered accounts database from localStorage
-  const [registeredAccounts, setRegisteredAccounts] = useState<RegisteredAccount[]>(() => {
-    try {
-      const stored = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(DEFAULT_SEED_ACCOUNTS));
-      return DEFAULT_SEED_ACCOUNTS;
-    } catch {
-      return DEFAULT_SEED_ACCOUNTS;
-    }
-  });
-
-  // Current active logged in user - starts as NULL by default so site opens in clean guest mode
+  // Current active logged in user - NULL by default so site starts clean in guest mode
   const [user, setUser] = useState<AuthUser | null>(() => {
     try {
-      // Clear legacy persistent localStorage auth key so fresh visits are always logged out
       localStorage.removeItem(AUTH_STORAGE_KEY);
-      
       const stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -272,16 +220,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   });
 
-  // Save registered accounts changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(registeredAccounts));
-    } catch (e) {
-      console.error('Failed to persist registered accounts', e);
-    }
-  }, [registeredAccounts]);
-
-  // Save active user session to sessionStorage (clears on tab/browser close)
+  // Save active user session to sessionStorage
   useEffect(() => {
     if (user) {
       sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
@@ -298,24 +237,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem(LOCKER_KEY, JSON.stringify(lockerSongs));
   }, [lockerSongs]);
 
-  // Sync user state back into registeredAccounts store
-  const syncUserToAccounts = (updatedUser: AuthUser) => {
-    setRegisteredAccounts((prev) =>
-      prev.map((acc) => {
-        if (acc.id === updatedUser.id || acc.email.toLowerCase() === updatedUser.email.toLowerCase()) {
-          return {
-            ...acc,
-            ...updatedUser,
-            password: acc.password, // preserve password
-          };
-        }
-        return acc;
-      })
-    );
-  };
-
   /**
-   * Strict Login: Only allows login if the user has ALREADY created an account!
+   * Database-backed Login: Validates against SQLite backend database
    */
   const login = async (email: string, password?: string): Promise<AuthResult> => {
     const cleanEmail = email.trim().toLowerCase();
@@ -325,52 +248,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { success: false, message: msg };
     }
 
-    // Lookup in registered accounts
-    const existingAccount = registeredAccounts.find(
-      (acc) => acc.email.toLowerCase() === cleanEmail
-    );
+    if (!password || password.trim().length < 4) {
+      const msg = 'Password must be at least 4 characters.';
+      toast.error(msg);
+      return { success: false, message: msg };
+    }
 
-    if (!existingAccount) {
-      const errorMsg = 'No account found with this email. Please create an account first!';
+    try {
+      const dbUser = await loginApi(cleanEmail, password);
+      setUser(dbUser);
+      toast.success(`Welcome back, ${dbUser.name}!`);
+      return { success: true };
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Login failed. Please verify your credentials.';
       toast.error(errorMsg);
       return {
         success: false,
         message: errorMsg,
       };
     }
-
-    // Verify password if provided
-    if (password && existingAccount.password && existingAccount.password !== password) {
-      const errorMsg = 'Incorrect password. Please verify your credentials.';
-      toast.error(errorMsg);
-      return {
-        success: false,
-        message: errorMsg,
-      };
-    }
-
-    // Log the user in with their full profile and isolated room lists
-    const activeUser: AuthUser = {
-      id: existingAccount.id,
-      name: existingAccount.name,
-      email: existingAccount.email,
-      avatar: existingAccount.avatar,
-      bio: existingAccount.bio || 'Music and watch party lover 🎶',
-      favoriteGenre: existingAccount.favoriteGenre || 'Pop & EDM',
-      createdAt: existingAccount.createdAt || Date.now(),
-      roomsHosted: existingAccount.roomsHosted || existingAccount.createdRooms?.length || 0,
-      watchTimeMinutes: existingAccount.watchTimeMinutes || 60,
-      createdRooms: existingAccount.createdRooms || [],
-      joinedRooms: existingAccount.joinedRooms || [],
-    };
-
-    setUser(activeUser);
-    toast.success(`Welcome back, ${activeUser.name}!`);
-    return { success: true };
   };
 
   /**
-   * Account Creation / Register
+   * Database-backed Account Creation / Register
    */
   const register = async (name: string, email: string, password?: string): Promise<AuthResult> => {
     const cleanName = name.trim();
@@ -394,89 +294,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { success: false, message: msg };
     }
 
-    // Check if email already registered
-    const exists = registeredAccounts.some(
-      (acc) => acc.email.toLowerCase() === cleanEmail
-    );
-
-    if (exists) {
-      const msg = 'An account with this email already exists. Please log in.';
-      toast.error(msg);
+    try {
+      const newUser = await registerApi(cleanName, cleanEmail, password);
+      setUser(newUser);
+      toast.success(`Account created! Welcome to WatchParty, ${newUser.name}.`);
+      return { success: true };
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Registration failed. Please try again.';
+      toast.error(errorMsg);
       return {
         success: false,
-        message: msg,
+        message: errorMsg,
       };
     }
-
-    // Create brand new account
-    const newAccount: RegisteredAccount = {
-      id: `usr_${Date.now()}`,
-      name: cleanName,
-      email: cleanEmail,
-      password: password,
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanName)}`,
-      bio: 'New WatchParty Member ✨ Ready for sync music & stream parties.',
-      favoriteGenre: 'Pop & EDM',
-      createdAt: Date.now(),
-      roomsHosted: 0,
-      watchTimeMinutes: 0,
-      createdRooms: [],
-      joinedRooms: [],
-    };
-
-    // Store in accounts list
-    setRegisteredAccounts((prev) => [newAccount, ...prev]);
-
-    const activeUser: AuthUser = {
-      id: newAccount.id,
-      name: newAccount.name,
-      email: newAccount.email,
-      avatar: newAccount.avatar,
-      bio: newAccount.bio,
-      favoriteGenre: newAccount.favoriteGenre,
-      createdAt: newAccount.createdAt,
-      roomsHosted: 0,
-      watchTimeMinutes: 0,
-      createdRooms: [],
-      joinedRooms: [],
-    };
-
-    setUser(activeUser);
-    toast.success(`Account created! Welcome to WatchParty, ${newAccount.name}.`);
-    return { success: true };
   };
 
-  const guestLogin = (name?: string) => {
+  const guestLogin = async (name?: string) => {
     const demoName = name?.trim() || 'Alex Carter';
     const demoEmail = 'alex@watchparty.live';
-    
-    // Find if demo account already exists
-    const existing = registeredAccounts.find((acc) => acc.email === demoEmail);
-    if (existing) {
-      setUser(existing);
-      toast.success(`Logged in as ${existing.name}!`);
-      return;
+    const demoPass = 'password123';
+
+    // Try login or register on database
+    try {
+      const dbUser = await loginApi(demoEmail, demoPass);
+      setUser(dbUser);
+      toast.success(`Logged in as ${dbUser.name}!`);
+    } catch {
+      try {
+        const newUser = await registerApi(demoName, demoEmail, demoPass);
+        setUser(newUser);
+        toast.success(`Demo account created and logged in!`);
+      } catch (err: any) {
+        toast.error('Failed demo login');
+      }
     }
-
-    // Else create seed account
-    const guestUser: RegisteredAccount = {
-      id: `usr_guest_${Date.now()}`,
-      name: demoName,
-      email: demoEmail,
-      password: 'password123',
-      avatar: '/assets/3d_dj_hero.jpg',
-      bio: 'Streaming high quality sync parties with friends 🎧',
-      favoriteGenre: 'Latin Pop & Lo-Fi',
-      createdAt: Date.now(),
-      roomsHosted: 1,
-      watchTimeMinutes: 45,
-      createdRooms: [],
-      joinedRooms: [],
-    };
-
-    setRegisteredAccounts((prev) => [guestUser, ...prev]);
-    setUser(guestUser);
-    toast.success(`Logged in as ${guestUser.name}!`);
   };
 
   const logout = () => {
@@ -489,7 +340,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   /**
    * Update profile information & avatar photo (committed only on explicit save)
    */
-  const updateProfile = (updates: Partial<AuthUser>) => {
+  const updateProfile = async (updates: Partial<AuthUser>) => {
     if (!user) return;
     const updated: AuthUser = {
       ...user,
@@ -498,8 +349,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       joinedRooms: user.joinedRooms || [],
     };
     setUser(updated);
-    syncUserToAccounts(updated);
-    toast.success('Profile and changes saved successfully!');
+
+    // Sync to database
+    try {
+      await updateProfileApi({
+        userId: user.id,
+        name: updates.name,
+        bio: updates.bio,
+        favoriteGenre: updates.favoriteGenre,
+        avatar: updates.avatar,
+      });
+      toast.success('Profile and changes saved successfully!');
+    } catch {
+      toast.success('Profile updated locally!');
+    }
   };
 
   /**
@@ -526,7 +389,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     setUser(updatedUser);
-    syncUserToAccounts(updatedUser);
+    addCreatedRoomApi(user.id, cleanCode, roomName);
   };
 
   /**
@@ -534,15 +397,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
    */
   const removeCreatedRoom = (code: string) => {
     if (!user) return;
-    const updatedRooms = (user.createdRooms || []).filter((r) => r.code !== code);
+    const cleanCode = code.trim().toUpperCase();
+    const updatedRooms = (user.createdRooms || []).filter((r) => r.code !== cleanCode);
     const updatedUser: AuthUser = {
       ...user,
       createdRooms: updatedRooms,
       roomsHosted: updatedRooms.length,
     };
     setUser(updatedUser);
-    syncUserToAccounts(updatedUser);
-    toast.info(`Room ${code} removed from your created rooms.`);
+    removeCreatedRoomApi(user.id, cleanCode);
+    toast.info(`Room ${cleanCode} removed from your created rooms.`);
   };
 
   /**
@@ -570,7 +434,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     setUser(updatedUser);
-    syncUserToAccounts(updatedUser);
+    addJoinedRoomApi(user.id, cleanCode, roomName, hostName);
   };
 
   /**
@@ -578,14 +442,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
    */
   const removeJoinedRoom = (code: string) => {
     if (!user) return;
-    const updatedHistory = (user.joinedRooms || []).filter((r) => r.code !== code);
+    const cleanCode = code.trim().toUpperCase();
+    const updatedHistory = (user.joinedRooms || []).filter((r) => r.code !== cleanCode);
     const updatedUser: AuthUser = {
       ...user,
       joinedRooms: updatedHistory,
     };
     setUser(updatedUser);
-    syncUserToAccounts(updatedUser);
-    toast.info(`Room ${code} removed from joined history.`);
+    removeJoinedRoomApi(user.id, cleanCode);
+    toast.info(`Room ${cleanCode} removed from joined history.`);
   };
 
   /**
@@ -598,7 +463,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       joinedRooms: [],
     };
     setUser(updatedUser);
-    syncUserToAccounts(updatedUser);
+    clearJoinedHistoryApi(user.id);
     toast.info('Joined rooms history cleared.');
   };
 

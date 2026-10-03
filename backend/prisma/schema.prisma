@@ -7,6 +7,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id             String             @id @default(uuid())
+  email          String             @unique
+  name           String
+  passwordHash   String
+  avatar         String?
+  bio            String?
+  favoriteGenre  String?            @default("Pop & EDM")
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  createdRooms   UserCreatedRoom[]
+  joinedRooms    UserJoinedRoom[]
+
+  @@index([email])
+}
+
+model UserCreatedRoom {
+  id        String   @id @default(uuid())
+  userId    String
+  code      String
+  name      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserJoinedRoom {
+  id        String   @id @default(uuid())
+  userId    String
+  code      String
+  name      String
+  hostName  String?
+  joinedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model Room {
   id             String        @id @default(uuid())
   code           String        @unique

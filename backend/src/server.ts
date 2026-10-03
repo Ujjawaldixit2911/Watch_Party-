@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import { RoomManager } from './services/RoomManager';
 import { RoomController } from './controllers/roomController';
+import { AuthController } from './controllers/authController';
 import { setupWebSocket } from './websocket';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -40,12 +41,12 @@ async function bootstrap() {
     })
   );
 
-  app.use(express.json({ limit: '50kb' }));
+  app.use(express.json({ limit: '100kb' }));
 
   // Global REST Rate Limiting
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200,
+    max: 300,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later.' } },
@@ -55,7 +56,7 @@ async function bootstrap() {
   // Create Room rate limiter specifically to prevent room spam
   const createRoomLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: 10,
+    max: 15,
     message: { error: { code: 'RATE_LIMITED', message: 'Too many room creations. Please wait.' } },
   });
 
@@ -64,6 +65,7 @@ async function bootstrap() {
   await roomManager.init();
 
   const roomController = new RoomController(roomManager);
+  const authController = new AuthController();
 
   // Health Endpoint
   app.get('/health', (_req, res) => {
@@ -73,6 +75,16 @@ async function bootstrap() {
   // REST API Endpoints
   app.post('/api/rooms', createRoomLimiter, roomController.createRoom);
   app.get('/api/rooms/:roomCode', roomController.checkRoom);
+
+  // User Authentication & Profile REST Endpoints (Strict DB backed)
+  app.post('/api/auth/register', authController.register);
+  app.post('/api/auth/login', authController.login);
+  app.put('/api/auth/profile', authController.updateProfile);
+  app.post('/api/auth/rooms/created', authController.addCreatedRoom);
+  app.post('/api/auth/rooms/joined', authController.addJoinedRoom);
+  app.delete('/api/auth/rooms/created/:userId/:code', authController.removeCreatedRoom);
+  app.delete('/api/auth/rooms/joined/:userId/:code', authController.removeJoinedRoom);
+  app.delete('/api/auth/rooms/joined-all/:userId', authController.clearJoinedHistory);
 
   // Global Error Handler
   app.use(errorHandler);
