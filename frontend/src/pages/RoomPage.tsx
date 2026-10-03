@@ -5,6 +5,7 @@ import {
   MessageSquare,
   Film,
   Info,
+  Hand,
 } from 'lucide-react';
 import { useRoom } from '../context/RoomContext';
 import { useAuth } from '../context/AuthContext';
@@ -17,6 +18,7 @@ import { PlaybackControls } from '../components/PlaybackControls/PlaybackControl
 import { ParticipantList } from '../components/ParticipantList/ParticipantList';
 import { Chat } from '../components/Chat/Chat';
 import { RequestControl } from '../components/RequestControl/RequestControl';
+import { RequestQueuePanel } from '../components/RequestControl/RequestQueuePanel';
 import { ChangeVideoModal } from '../components/Modals/ChangeVideoModal';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
@@ -26,7 +28,7 @@ export const RoomPage: React.FC = () => {
   const { roomCode: paramCode } = useParams<{ roomCode: string }>();
   const { state, joinRoom } = useRoom();
   const { user, addJoinedRoom } = useAuth();
-  const { canControlPlayback, isParticipant } = usePermissions();
+  const { canControlPlayback, isParticipant, canResolveRequests } = usePermissions();
   const navigate = useNavigate();
 
   // YouTube player hook bound to container 'yt-player-container'
@@ -45,7 +47,14 @@ export const RoomPage: React.FC = () => {
   } = useYouTubePlayer('yt-player-container');
 
   const [isChangeVideoModalOpen, setIsChangeVideoModalOpen] = useState(false);
-  const [activeMobileTab, setActiveMobileTab] = useState<'chat' | 'participants'>('chat');
+  const [activeRightTab, setActiveRightTab] = useState<'chat' | 'participants' | 'requests'>('chat');
+
+  // Auto-switch to requests tab when new request arrives for host/mod
+  useEffect(() => {
+    if (canResolveRequests && state.pendingRequests.length > 0) {
+      // Optional: keep tab or highlight
+    }
+  }, [state.pendingRequests.length, canResolveRequests]);
 
   // Direct URL visitor join prompt
   const [isJoinPromptOpen, setIsJoinPromptOpen] = useState(false);
@@ -176,58 +185,71 @@ export const RoomPage: React.FC = () => {
             </div>
           )}
 
-          {/* Control Request Section (Inbox for host / triggers for participants) */}
-          <RequestControl />
+          {/* Control Request Trigger/Banner */}
+          <RequestControl onOpenRequestsTab={() => setActiveRightTab('requests')} />
         </div>
 
-        {/* Right Side: Tabbed Chat & Participant List (Col span 4 on large screens) */}
-        <div className="lg:col-span-4 flex flex-col h-[600px] lg:h-auto min-h-[500px]">
-          {/* Mobile View Toggle */}
-          <div className="flex sm:hidden mb-2 bg-[#111113] p-1 rounded-xl border border-zinc-800">
+        {/* Right Side: Tabbed Chat, Members, & Requests Column (Col span 4 on large screens) */}
+        <div className="lg:col-span-4 flex flex-col h-[600px] lg:h-[calc(100vh-140px)] min-h-[500px]">
+          {/* Tab Selection Bar */}
+          <div className="flex mb-3 bg-[#0D0F1D]/90 p-1.5 rounded-2xl border border-slate-800/80 shadow-xl backdrop-blur-xl gap-1">
             <button
-              onClick={() => setActiveMobileTab('chat')}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
-                activeMobileTab === 'chat'
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-zinc-400 hover:text-white'
+              onClick={() => setActiveRightTab('chat')}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                activeRightTab === 'chat'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               <MessageSquare className="w-3.5 h-3.5" />
-              <span>Chat ({state.chatHistory.length})</span>
+              <span>Chat</span>
+              {state.chatHistory.length > 0 && (
+                <span className="text-[10px] bg-slate-900/60 px-1.5 py-0.2 rounded-full font-mono">
+                  {state.chatHistory.length}
+                </span>
+              )}
             </button>
+
             <button
-              onClick={() => setActiveMobileTab('participants')}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
-                activeMobileTab === 'participants'
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-zinc-400 hover:text-white'
+              onClick={() => setActiveRightTab('participants')}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                activeRightTab === 'participants'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
-              <span>Members ({state.participants.length})</span>
+              <span>Members</span>
+              <span className="text-[10px] bg-slate-900/60 px-1.5 py-0.2 rounded-full font-mono">
+                {state.participants.length}
+              </span>
             </button>
+
+            {canResolveRequests && (
+              <button
+                onClick={() => setActiveRightTab('requests')}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer relative ${
+                  activeRightTab === 'requests'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md shadow-amber-500/20'
+                    : 'text-slate-400 hover:text-amber-300 hover:bg-slate-800/50'
+                }`}
+              >
+                <Hand className="w-3.5 h-3.5" />
+                <span>Requests</span>
+                {state.pendingRequests.length > 0 && (
+                  <span className="text-[10px] bg-amber-400 text-slate-950 font-bold px-1.5 py-0.2 rounded-full font-mono animate-pulse-subtle">
+                    {state.pendingRequests.length}
+                  </span>
+                )}
+              </button>
+            )}
           </div>
 
-          <div className="flex-1 grid grid-rows-1 lg:grid-rows-2 gap-4">
-            {/* 1. Chat Container (visible if chat tab active or on large screens) */}
-            <div
-              className={`h-full min-h-0 ${
-                activeMobileTab === 'chat' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'
-              }`}
-            >
-              <Chat />
-            </div>
-
-            {/* 2. Participant List Container */}
-            <div
-              className={`h-full min-h-0 ${
-                activeMobileTab === 'participants'
-                  ? 'flex flex-col'
-                  : 'hidden lg:flex lg:flex-col'
-              }`}
-            >
-              <ParticipantList />
-            </div>
+          {/* Tab Content Container */}
+          <div className="flex-1 min-h-0 flex flex-col">
+            {activeRightTab === 'chat' && <Chat />}
+            {activeRightTab === 'participants' && <ParticipantList />}
+            {activeRightTab === 'requests' && <RequestQueuePanel />}
           </div>
         </div>
       </main>
