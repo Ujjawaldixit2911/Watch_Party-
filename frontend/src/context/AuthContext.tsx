@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
+import { jwtDecode } from 'jwt-decode';
 import {
   loginApi,
   registerApi,
+  googleLoginApi,
   updateProfileApi,
   addCreatedRoomApi,
   addJoinedRoomApi,
@@ -155,6 +157,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password?: string) => Promise<AuthResult>;
   register: (name: string, email: string, password?: string) => Promise<AuthResult>;
+  loginWithGoogle: (credential: string | { name: string; email: string; avatar?: string }) => Promise<AuthResult>;
   guestLogin: (name?: string) => void;
   logout: () => void;
   updateProfile: (updates: Partial<AuthUser>) => void;
@@ -425,6 +428,89 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { success: true };
   };
 
+  /**
+   * Google Sign-In / Register Handler
+   */
+  const loginWithGoogle = async (
+    credential: string | { name: string; email: string; avatar?: string }
+  ): Promise<AuthResult> => {
+    try {
+      let googleProfile: { name: string; email: string; avatar?: string };
+
+      if (typeof credential === 'string') {
+        // Decode Google JWT Token
+        const decoded: any = jwtDecode(credential);
+        googleProfile = {
+          name: decoded.name || decoded.given_name || 'Google User',
+          email: decoded.email?.toLowerCase(),
+          avatar: decoded.picture,
+        };
+      } else {
+        googleProfile = {
+          ...credential,
+          email: credential.email.toLowerCase(),
+        };
+      }
+
+      if (!googleProfile.email) {
+        const msg = 'Unable to get verified email from Google.';
+        toast.error(msg);
+        return { success: false, message: msg };
+      }
+
+      // 1. Try Backend DB Google Login
+      let dbUser: AuthUser | null = null;
+      try {
+        dbUser = await googleLoginApi({
+          name: googleProfile.name,
+          email: googleProfile.email,
+          avatar: googleProfile.avatar,
+        });
+      } catch (err: any) {
+        console.warn('Backend google login offline, fallback to local', err);
+      }
+
+      const activeUser: AuthUser = dbUser
+        ? {
+            ...dbUser,
+            createdRooms: dbUser.createdRooms || [],
+            joinedRooms: dbUser.joinedRooms || [],
+          }
+        : {
+            id: `g_${Date.now()}`,
+            name: googleProfile.name,
+            email: googleProfile.email,
+            avatar:
+              googleProfile.avatar ||
+              `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(googleProfile.name)}`,
+            bio: 'WatchParty Google Verified Member 🎧',
+            favoriteGenre: 'Pop & EDM',
+            createdAt: Date.now(),
+            roomsHosted: 0,
+            watchTimeMinutes: 0,
+            createdRooms: [],
+            joinedRooms: [],
+          };
+
+      setUser(activeUser);
+      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(activeUser));
+
+      // Cache locally
+      const storedAccs = getStoredAccounts();
+      saveStoredAccounts([
+        activeUser,
+        ...storedAccs.filter((a) => a.email.toLowerCase() !== googleProfile.email),
+      ]);
+
+      toast.success(`Signed in with Google as ${activeUser.name}!`);
+      return { success: true };
+    } catch (err: any) {
+      const msg = err?.message || 'Google sign-in failed. Please try again.';
+      toast.error(msg);
+      return { success: false, message: msg };
+    }
+  };
+
   const guestLogin = (name?: string) => {
     const demoName = name?.trim() || 'Alex Carter';
     const demoEmail = 'alex@watchparty.live';
@@ -649,6 +735,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthenticated: Boolean(user),
         login,
         register,
+        loginWithGoogle,
         guestLogin,
         logout,
         updateProfile,

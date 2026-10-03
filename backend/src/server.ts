@@ -79,6 +79,7 @@ async function bootstrap() {
   // User Authentication & Profile REST Endpoints (Strict DB backed)
   app.post('/api/auth/register', authController.register);
   app.post('/api/auth/login', authController.login);
+  app.post('/api/auth/google', authController.googleLogin);
   app.put('/api/auth/profile', authController.updateProfile);
   app.post('/api/auth/rooms/created', authController.addCreatedRoom);
   app.post('/api/auth/rooms/joined', authController.addJoinedRoom);

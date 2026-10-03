@@ -163,6 +163,84 @@ export class AuthController {
   };
 
   /**
+   * Google One-Tap & OAuth Login / Register
+   */
+  public googleLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { name, email, avatar } = req.body;
+
+      const cleanEmail = (email || '').trim().toLowerCase();
+      const cleanName = (name || cleanEmail.split('@')[0] || 'Google User').trim();
+      const cleanAvatar = (avatar || '').trim() || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanName)}`;
+
+      if (!cleanEmail || !cleanEmail.includes('@')) {
+        res.status(400).json({ error: { message: 'Valid email is required for Google Sign-In.' } });
+        return;
+      }
+
+      // Check if user already exists
+      let user = await prisma.user.findUnique({
+        where: { email: cleanEmail },
+        include: {
+          createdRooms: { orderBy: { createdAt: 'desc' } },
+          joinedRooms: { orderBy: { joinedAt: 'desc' } },
+        },
+      });
+
+      if (!user) {
+        // Create user with Google info
+        const generatedGooglePass = hashPassword(`google_oauth_${cleanEmail}_${Date.now()}`);
+        user = await prisma.user.create({
+          data: {
+            name: cleanName,
+            email: cleanEmail,
+            passwordHash: generatedGooglePass,
+            avatar: cleanAvatar,
+            bio: 'WatchParty Member (Google Verified) 🎧',
+            favoriteGenre: 'Pop & EDM',
+          },
+          include: {
+            createdRooms: { orderBy: { createdAt: 'desc' } },
+            joinedRooms: { orderBy: { joinedAt: 'desc' } },
+          },
+        });
+      }
+
+      if (!user) {
+        res.status(500).json({ error: { message: 'Failed to authenticate user.' } });
+        return;
+      }
+
+      res.status(200).json({
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          bio: user.bio,
+          favoriteGenre: user.favoriteGenre,
+          createdAt: user.createdAt.getTime(),
+          roomsHosted: user.createdRooms.length,
+          watchTimeMinutes: 60,
+          createdRooms: user.createdRooms.map((r) => ({
+            code: r.code,
+            name: r.name,
+            createdAt: r.createdAt.getTime(),
+          })),
+          joinedRooms: user.joinedRooms.map((r) => ({
+            code: r.code,
+            name: r.name,
+            joinedAt: r.joinedAt.getTime(),
+            hostName: r.hostName || undefined,
+          })),
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
    * Update Profile Details and Avatar Photo
    */
   public updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

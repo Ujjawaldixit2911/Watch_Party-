@@ -59,6 +59,24 @@ export async function loginApi(email: string, password?: string) {
   return data.user;
 }
 
+export async function googleLoginApi(userData: {
+  name: string;
+  email: string;
+  avatar?: string;
+}) {
+  const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error?.message || 'Google login failed');
+  }
+  return data.user;
+}
+
 export async function updateProfileApi(updates: {
   userId: string;
   name?: string;

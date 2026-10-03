@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -133,6 +134,18 @@ export const LoginPage: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* 1-Click Google Sign-In */}
+        <div className="space-y-3">
+          <GoogleAuthButton redirectPath={redirectPath} buttonText="Sign In with Google" />
+
+          <div className="relative flex items-center justify-center">
+            <div className="w-full border-t border-slate-800" />
+            <span className="bg-[#0F1222] px-3 text-[11px] uppercase tracking-wider text-zinc-500 font-semibold absolute">
+              or with email
+            </span>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
