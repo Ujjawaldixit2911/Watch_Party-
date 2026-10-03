@@ -57,13 +57,19 @@ export function registerRequestHandlers(
         requesterId: participant.userId,
         requesterName: participant.username,
         type,
-        payload,
+        payload: payload ? {
+          time: payload.time ?? undefined,
+          videoId: payload.videoId ?? undefined,
+        } : undefined,
         createdAt: Date.now(),
       };
 
       room.addPendingRequest(request);
 
-      // Emit to Host and Moderators only
+      // Broadcast to all participants in the room (Host, Mods, and Requesters get real-time state sync)
+      io.to(room.roomCode).emit('control_request_created', request);
+
+      // Also ensure direct socket emission to host and moderators
       for (const p of room.participants.values()) {
         if ((p.role === 'HOST' || p.role === 'MODERATOR') && p.socketId) {
           io.to(p.socketId).emit('control_request_created', request);

@@ -173,6 +173,8 @@ function roomReducer(state: RoomState, action: RoomAction): RoomState {
     }
 
     case 'ADD_REQUEST': {
+      const exists = state.pendingRequests.some((r) => r.requestId === action.payload.requestId);
+      if (exists) return state;
       return {
         ...state,
         pendingRequests: [...state.pendingRequests, action.payload],
@@ -572,8 +574,13 @@ export function RoomProvider({ children }: { children: ReactNode }) {
   };
 
   const sendRequestControl = (type: ControlRequest['type'], payload?: ControlRequest['payload']) => {
-    socket.emit('request_control', { type, payload });
-    toast.success(`${type} control request sent to host`);
+    socket.emit('request_control', {
+      type,
+      payload: payload ? {
+        time: payload.time ?? undefined,
+        videoId: payload.videoId ?? undefined,
+      } : undefined,
+    });
   };
 
   const sendResolveControlRequest = (requestId: string, decision: 'APPROVED' | 'REJECTED') => {

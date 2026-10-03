@@ -111,12 +111,12 @@ export const RequestControlEventSchema = z
     type: ControlRequestTypeSchema,
     payload: z
       .object({
-        time: PlaybackTimeSchema.optional(),
-        videoId: YouTubeVideoIdSchema.optional(),
+        time: PlaybackTimeSchema.optional().nullable(),
+        videoId: YouTubeVideoIdSchema.optional().nullable(),
       })
-      .optional(),
-  })
-  .strict();
+      .optional()
+      .nullable(),
+  });
 
 export const ResolveControlRequestEventSchema = z
   .object({
