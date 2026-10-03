@@ -61,7 +61,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#0D0F1D]/90 border border-slate-800/80 rounded-2xl p-4 shadow-2xl space-y-3 backdrop-blur-xl">
+    <div className="w-full bg-[#0F1322]/90 border border-slate-700/50 rounded-2xl p-4 shadow-2xl space-y-3 backdrop-blur-2xl">
       {/* 1. Progress / Seek Bar with purple glow gradient */}
       <div className="relative flex items-center group px-1">
         <input

@@ -60,9 +60,9 @@ export const RequestQueuePanel: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#0D0F1D]/90 border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+    <div className="flex flex-col h-full bg-[#0F1322]/90 border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-800/80 bg-slate-900/60">
+      <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-700/50 bg-slate-900/70">
         <div className="flex items-center gap-2">
           <div className="relative">
             <Hand className="w-4 h-4 text-amber-400" />

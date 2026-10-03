@@ -50,7 +50,7 @@ export const RoomHeader: React.FC = () => {
 
   return (
     <>
-      <header className="w-full bg-[#080914]/90 border-b border-slate-800/80 backdrop-blur-2xl sticky top-0 z-40 px-3 sm:px-6 py-2.5">
+      <header className="w-full bg-[#080B17]/90 border-b border-slate-700/50 backdrop-blur-2xl sticky top-0 z-40 px-3 sm:px-6 py-2.5">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           {/* Left: Brand Logo & Room Code Pill */}
           <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">

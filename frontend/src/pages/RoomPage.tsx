@@ -112,10 +112,16 @@ export const RoomPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070814] text-slate-100 flex flex-col selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
-      {/* Ambient background glows */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[128px] pointer-events-none" />
-      <div className="absolute top-20 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[128px] pointer-events-none" />
+    <div className="min-h-screen bg-[#080B14] text-slate-100 flex flex-col selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
+      {/* Atmospheric Ambient Glows matching the reference image */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Top-right vibrant cyan ambient glow */}
+        <div className="absolute top-[-10%] right-[-5%] w-[650px] h-[650px] bg-gradient-to-br from-cyan-400/20 via-teal-500/10 to-transparent rounded-full blur-[140px]" />
+        {/* Left/Center deep purple ambient glow */}
+        <div className="absolute top-[15%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-purple-600/20 via-indigo-600/10 to-transparent rounded-full blur-[160px]" />
+        {/* Bottom soft cyan glow */}
+        <div className="absolute bottom-[-10%] left-[25%] w-[550px] h-[450px] bg-cyan-950/20 rounded-full blur-[140px]" />
+      </div>
 
       {/* 1. Header */}
       <RoomHeader />
@@ -125,7 +131,7 @@ export const RoomPage: React.FC = () => {
         {/* Left Side: Video Player, Controls, Info Bar, Requests (Col span 8 on large screens) */}
         <div className="lg:col-span-8 flex flex-col space-y-4">
           {/* YouTube Video Player Embed */}
-          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl bg-black">
+          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-700/60 shadow-2xl bg-black">
             <VideoPlayer
               containerId="yt-player-container"
               isPlayerReady={isPlayerReady}
@@ -134,7 +140,7 @@ export const RoomPage: React.FC = () => {
           </div>
 
           {/* Now Playing Title & Quick Info */}
-          <div className="flex items-center justify-between p-3.5 bg-[#0D0F1D]/90 border border-slate-800/80 rounded-2xl shadow-xl backdrop-blur-xl">
+          <div className="flex items-center justify-between p-3.5 bg-[#0F1322]/90 border border-slate-700/50 rounded-2xl shadow-xl backdrop-blur-2xl">
             <div className="min-w-0 flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <Film className="w-4 h-4 text-cyan-400" />
