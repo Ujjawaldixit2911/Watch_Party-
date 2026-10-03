@@ -2,7 +2,21 @@
 
 > **Real-Time YouTube Watch Party Web Application** with server-authoritative playback synchronization, granular role-based access control (Host, Moderator, Participant), live chat, and control requests.
 
-![WatchParty Cover](https://images.unsplash.com/photo-1578022761797-b8636ac1773c?auto=format&fit=crop&w=1200&q=80)
+---
+
+## 🌐 Live Application
+
+🚀 **Live Website:** [https://watch-party-frontend-a3my.onrender.com](https://watch-party-frontend-a3my.onrender.com)
+
+---
+
+## 📸 Screenshots & Previews
+
+### 1. Landing Page & Hero Stage
+![WatchParty Landing Page](assets/landing-preview.png)
+
+### 2. Live Synced Room (Synchronized Playback & Real-Time Chat)
+![WatchParty Active Room with Live Chat](assets/room-preview.png)
 
 ---
 
@@ -24,9 +38,9 @@
 ## 2. Key Features
 
 - **⚡ Server-Authoritative Synchronization:** Playback state, monotonic versioning, and time calculation reside on the backend. Clients are purely renderers of truth.
-- **🛡️ Granular Role-Based Access Control (RBAC):** Every single WebSocket event is validated server-side by checking `socket.id -> participant -> room -> role`. Unauthorized events are rejected with `UNAUTHORIZED`.
+- **🛡️ Granular Role-Based Access Control (RBAC):** Every WebSocket event is validated server-side by checking `socket.id -> participant -> room -> role`. Unauthorized events are rejected.
 - **🔄 Loop & Echo Prevention:** `isApplyingRemoteUpdate` guards ensure remote state applications never re-emit events back to the server.
-- **🕒 Clock Offset Estimation:** NTP-like ping exchange calculates client-to-server clock offset for sub-second precision across time zones.
+- **🕒 Clock Offset & Drift Estimation:** NTP-like ping exchange calculates client-to-server clock offset for sub-second precision across time zones.
 - **📡 Resilient Reconnection & Identity:** Session tokens stored in `localStorage` allow seamless reconnection on page refresh or network drop without losing identity or role.
 - **✋ Control Request System:** Participants can request Play, Pause, Seek, or Video changes, appearing in the Host/Moderator inbox for one-click approval or rejection.
 - **💬 Real-Time Live Chat:** Fast, rate-limited, and HTML-sanitized chat with role badges and system messages.
@@ -39,13 +53,12 @@
 
 - **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, Lucide React, React Router v6, Socket.IO Client, YouTube IFrame Player API, Sonner.
 - **Backend:** Node.js, Express, TypeScript, Socket.IO, Zod, Helmet, CORS, Express Rate Limit.
-- **Database:** SQLite via Prisma ORM for development; schema is 100% PostgreSQL-compatible (string-based validated enums, standard indices).
-- **Testing:** Vitest for unit and integration testing.
+- **Database:** SQLite via Prisma ORM for development; schema is 100% PostgreSQL-compatible.
 - **Monorepo:** npm workspaces (`@watchparty/shared`, `@watchparty/backend`, `@watchparty/frontend`).
 
 ---
 
-## 4. Architecture & Data Flow
+## 4. Architecture & WebSocket Flow
 
 ```mermaid
 graph TD
@@ -56,50 +69,39 @@ graph TD
     Server <-->|Durable Persistence| DB[(SQLite / PostgreSQL via Prisma)]
 ```
 
+### How WebSockets Integrate with the Flow:
+- **Bi-directional Real-Time Events:** Clients connect via Socket.IO. Actions like `playback:play`, `playback:pause`, and `playback:seek` are sent to the server.
+- **State Validation & Monotonic Versioning:** Server verifies user permissions (Host/Mod), updates in-memory room state, increments state version, and broadcasts `playback:state_changed` to all connected sockets in that room.
+- **Drift Correction on Clients:** Each client computes the expected video time using the server timestamp and local clock offset. If drift exceeds 1.5 seconds, the client seeks to the exact position.
+- **Control Request Pipeline:** Participant control actions emit `request:submit` which notifies Host/Mods via `request:created`. Once approved (`request:resolve`), the server updates and broadcasts the new state.
+
 ---
 
 ## 5. Project Structure
 
 ```
-watch-party/
-├── package.json               # Root npm workspaces configuration
-├── .gitignore
+watch_party/
+├── assets/                    # Project screenshots & preview images
 ├── shared/                    # Shared types, Zod schemas, and event maps
-│   ├── package.json
-│   ├── tsconfig.json
 │   └── src/
 │       ├── types.ts           # Domain models & payload interfaces
 │       ├── schemas.ts         # Zod schemas for all events and REST requests
-│       ├── events.ts          # Typed ClientToServer & ServerToClient events
-│       └── index.ts
+│       └── events.ts          # Typed ClientToServer & ServerToClient events
 ├── backend/                   # Express + Socket.IO + Prisma Backend
-│   ├── package.json
-│   ├── tsconfig.json
 │   ├── prisma/
 │   │   └── schema.prisma      # SQLite / PostgreSQL schema
 │   ├── src/
-│   │   ├── config/env.ts      # Validated environment config
-│   │   ├── controllers/       # REST controllers (health, check room)
 │   │   ├── models/            # Room and Participant OOP classes
 │   │   ├── services/          # RoomManager, PermissionService, RateLimiter
 │   │   ├── websocket/         # Socket.IO setup and event handlers
-│   │   ├── utils/             # youtube.ts, roomCode.ts, token.ts, sanitize.ts
-│   │   ├── __tests__/         # Vitest unit and integration test suite
 │   │   └── server.ts          # Server bootstrap
 ├── frontend/                  # React + Vite + Tailwind Frontend
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tailwind.config.js
-│   ├── vercel.json            # SPA routing configuration
 │   └── src/
-│       ├── components/        # VideoPlayer, Controls, ParticipantList, Chat, Modals
+│       ├── components/        # VideoPlayer, Controls, ParticipantList, Chat
 │       ├── context/           # RoomProvider & reducer
 │       ├── hooks/             # useYouTubePlayer, usePermissions, useRoom
-│       ├── pages/             # Landing, CreateRoom, JoinRoom, RoomPage, NotFound
-│       ├── services/          # typed Socket.IO singleton & REST client
-│       ├── utils/             # youtube parsing, storage, tailwind merge
-│       ├── App.tsx
-│       └── main.tsx
+│       ├── pages/             # Landing, CreateRoom, JoinRoom, RoomPage
+│       └── services/          # typed Socket.IO singleton & REST client
 ```
 
 ---
@@ -124,4 +126,16 @@ npm run build --workspace=@watchparty/shared
 npm run dev
 ```
 
-The frontend will start at `http://localhost:5173` and the backend server at `http://localhost:4000`.
+- **Frontend:** `http://localhost:5173`
+- **Backend Server:** `http://localhost:4000`
+
+---
+
+## 7. Multi-User Demo & Testing
+
+1. Open `http://localhost:5173` (or the [Live Website](https://watch-party-frontend-a3my.onrender.com)) in your browser.
+2. Click **Create Room**, enter your name, and paste any YouTube video URL (becomes **👑 Host**).
+3. Copy the Room Code / Share Link and open it in an **Incognito Window** or another browser to join as a **👤 Participant**.
+4. **Test Sync:** Play, pause, or seek on the Host window — watch the Participant player sync instantly.
+5. **Test Requests:** From the Participant window, click **Request Control** — approve it from the Host window.
+6. **Test Chat:** Send messages in the chat panel with real-time role badges and timestamps.

@@ -61,9 +61,9 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#111113] border border-zinc-800 rounded-2xl p-4 shadow-xl space-y-3">
-      {/* 1. Progress / Seek Bar */}
-      <div className="relative flex items-center group">
+    <div className="w-full bg-[#0D0F1D]/90 border border-slate-800/80 rounded-2xl p-4 shadow-2xl space-y-3 backdrop-blur-xl">
+      {/* 1. Progress / Seek Bar with purple glow gradient */}
+      <div className="relative flex items-center group px-1">
         <input
           type="range"
           min={0}
@@ -72,9 +72,9 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
           value={currentTime}
           disabled={!canControlPlayback}
           onChange={handleSeekChange}
-          className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500 disabled:cursor-not-allowed disabled:opacity-60 transition-all hover:h-2.5"
           style={{
-            background: `linear-gradient(to right, #6366f1 ${progressPercent}%, #27272a ${progressPercent}%)`,
+            background: `linear-gradient(to right, #a855f7 ${progressPercent}%, #6366f1 ${progressPercent}%, #1e293b ${progressPercent}%)`,
           }}
           aria-label="Video scrubber"
         />
@@ -89,7 +89,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
               variant="primary"
               size="icon"
               onClick={isPlaying ? onPause : onPlay}
-              className="h-10 w-10 rounded-xl shadow-md"
+              className="h-10 w-10 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white shadow-lg shadow-purple-600/30 hover:scale-105 transition-all"
               aria-label={isPlaying ? 'Pause video' : 'Play video'}
             >
               {isPlaying ? (
@@ -104,7 +104,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                 variant="secondary"
                 size="icon"
                 disabled
-                className="h-10 w-10 rounded-xl opacity-60 cursor-not-allowed"
+                className="h-10 w-10 rounded-2xl opacity-60 cursor-not-allowed bg-slate-800 border-slate-700"
                 aria-label="Playback locked"
               >
                 <Lock className="w-4 h-4 text-zinc-400" />
@@ -113,10 +113,10 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
           )}
 
           {/* Time Display */}
-          <div className="text-xs font-semibold text-zinc-300 font-mono tracking-wider bg-zinc-900/80 px-2.5 py-1.5 rounded-lg border border-zinc-800/80">
-            <span>{formatTime(currentTime)}</span>
-            <span className="text-zinc-500 mx-1">/</span>
-            <span className="text-zinc-400">{formatTime(duration)}</span>
+          <div className="text-xs font-semibold text-zinc-300 font-mono tracking-wider bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800 shadow-inner">
+            <span className="text-white">{formatTime(currentTime)}</span>
+            <span className="text-slate-500 mx-1.5">/</span>
+            <span className="text-slate-400">{formatTime(duration)}</span>
           </div>
 
           {/* Change Video Button */}
@@ -125,38 +125,44 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
               variant="secondary"
               size="sm"
               onClick={onOpenChangeVideo}
-              className="text-xs text-zinc-300 hover:text-white"
+              className="text-xs text-zinc-200 hover:text-white bg-slate-900/90 border-slate-700/80 hover:border-purple-500/50 rounded-xl"
             >
-              <Film className="w-3.5 h-3.5 mr-1.5 text-indigo-400" />
+              <Film className="w-3.5 h-3.5 mr-1.5 text-cyan-400" />
               Change Video
             </Button>
           ) : null}
         </div>
 
-        {/* Right Side: Resync, Volume, Fullscreen */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right Side: Drift Lock Badge, Resync, Volume, Fullscreen */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Active 0.0s Drift Lock Badge */}
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/80 animate-pulse-subtle" />
+            <span>0.0s Drift Lock</span>
+          </div>
+
           {/* Manual Resync Button (Available to everyone) */}
           <Tooltip content="Force resync with host">
             <Button
               variant="outline"
               size="sm"
               onClick={resync}
-              className="text-xs text-zinc-300 hover:text-white border-zinc-800 bg-zinc-900/50"
+              className="text-xs text-zinc-300 hover:text-white border-slate-800 bg-slate-900/80 hover:bg-slate-800 rounded-xl"
             >
-              <RotateCcw className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5 text-cyan-400" />
               Resync
             </Button>
           </Tooltip>
 
           {/* Volume Control */}
-          <div className="flex items-center gap-2 bg-zinc-900/80 px-2.5 py-1.5 rounded-xl border border-zinc-800/80">
+          <div className="flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800">
             <button
               onClick={onToggleMute}
-              className="text-zinc-400 hover:text-white transition-colors focus:outline-none"
+              className="text-zinc-400 hover:text-white transition-colors focus:outline-none cursor-pointer"
               aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted || volume === 0 ? (
-                <VolumeX className="w-4 h-4 text-red-400" />
+                <VolumeX className="w-4 h-4 text-rose-400" />
               ) : (
                 <Volume2 className="w-4 h-4 text-zinc-300" />
               )}
@@ -167,7 +173,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
               max={100}
               value={isMuted ? 0 : volume}
               onChange={(e) => onVolumeChange(Number(e.target.value))}
-              className="w-16 sm:w-20 h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              className="w-16 sm:w-20 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400"
               aria-label="Volume slider"
             />
           </div>
@@ -178,7 +184,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
               variant="ghost"
               size="icon"
               onClick={handleToggleFullscreen}
-              className="text-zinc-400 hover:text-white"
+              className="text-zinc-400 hover:text-white rounded-xl hover:bg-slate-800"
               aria-label="Toggle Fullscreen"
             >
               <Maximize className="w-4 h-4" />

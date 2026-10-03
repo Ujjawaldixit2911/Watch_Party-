@@ -103,29 +103,35 @@ export const RoomPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-zinc-100 flex flex-col selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[#070814] text-slate-100 flex flex-col selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
+      {/* Ambient background glows */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute top-20 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[128px] pointer-events-none" />
+
       {/* 1. Header */}
       <RoomHeader />
 
       {/* 2. Main Watch Party Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 relative z-10">
         {/* Left Side: Video Player, Controls, Info Bar, Requests (Col span 8 on large screens) */}
         <div className="lg:col-span-8 flex flex-col space-y-4">
           {/* YouTube Video Player Embed */}
-          <VideoPlayer
-            containerId="yt-player-container"
-            isPlayerReady={isPlayerReady}
-            onUnblockAutoplay={handleUnblockAutoplay}
-          />
+          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl bg-black">
+            <VideoPlayer
+              containerId="yt-player-container"
+              isPlayerReady={isPlayerReady}
+              onUnblockAutoplay={handleUnblockAutoplay}
+            />
+          </div>
 
           {/* Now Playing Title & Quick Info */}
-          <div className="flex items-center justify-between p-3.5 bg-[#111113] border border-zinc-800 rounded-2xl">
+          <div className="flex items-center justify-between p-3.5 bg-[#0D0F1D]/90 border border-slate-800/80 rounded-2xl shadow-xl backdrop-blur-xl">
             <div className="min-w-0 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center flex-shrink-0">
-                <Film className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Film className="w-4 h-4 text-cyan-400" />
               </div>
               <div className="min-w-0">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                   Now Playing
                 </span>
                 <h2 className="text-xs sm:text-sm font-semibold text-white truncate max-w-xs sm:max-w-md">
@@ -139,7 +145,7 @@ export const RoomPage: React.FC = () => {
                 variant="secondary"
                 size="sm"
                 onClick={() => setIsChangeVideoModalOpen(true)}
-                className="text-xs h-8 px-3 flex-shrink-0"
+                className="text-xs h-8 px-3 flex-shrink-0 bg-slate-900/90 border-slate-700/80 hover:border-purple-500/50 rounded-xl text-zinc-200 hover:text-white"
               >
                 Change Video
               </Button>
@@ -162,8 +168,8 @@ export const RoomPage: React.FC = () => {
 
           {/* Participant Info Banner */}
           {isParticipant && (
-            <div className="flex items-center gap-2 p-3 bg-zinc-900/40 border border-zinc-800/60 rounded-xl text-xs text-zinc-400">
-              <Info className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+            <div className="flex items-center gap-2 p-3 bg-slate-900/60 border border-slate-800/80 rounded-xl text-xs text-slate-400">
+              <Info className="w-4 h-4 text-cyan-400 flex-shrink-0" />
               <span>
                 You are viewing as a Participant. Playback is in real-time sync with Host & Moderators.
               </span>
