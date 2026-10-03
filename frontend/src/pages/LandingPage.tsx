@@ -36,8 +36,8 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#070913] text-zinc-100 selection:bg-purple-500 selection:text-white flex flex-col overflow-x-hidden">
-      {/* 1. Header Navigation */}
-      <header className="w-full border-b border-slate-800/80 bg-[#070913]/85 backdrop-blur-xl sticky top-0 z-50">
+      {/* 1. Header Navigation - Fixed Top On Scroll */}
+      <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-slate-800/80 bg-[#070913]/90 backdrop-blur-xl shadow-lg shadow-black/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo & Brand Tagline with stylish WP Logo */}
           <Link to="/" className="flex items-center gap-2 group">
@@ -169,7 +169,7 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* 2. Hero Section */}
-      <section className="relative pt-12 sm:pt-16 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex-1">
+      <section className="relative pt-24 sm:pt-28 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex-1">
         {/* Ambient Glowing Orbs */}
         <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-r from-purple-600/20 via-pink-600/15 to-indigo-600/20 blur-[150px] rounded-full pointer-events-none" />
         <div className="absolute bottom-1/4 right-10 w-[450px] h-[300px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none" />
@@ -321,7 +321,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 3. Why Choose Us Section (Grid) */}
-      <section id="why-choose-us" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17]">
+      <section id="why-choose-us" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17] scroll-mt-16">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold">
@@ -374,7 +374,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 4. How It Works Timeline */}
-      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#070913]">
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#070913] scroll-mt-16">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-heading">
@@ -420,7 +420,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 5. Audio & Video Flow Lifecycle Switcher */}
-      <section id="flow-lifecycle" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17]">
+      <section id="flow-lifecycle" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17] scroll-mt-16">
         <div className="max-w-5xl mx-auto space-y-10">
           <div className="text-center space-y-4">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-heading">
@@ -505,7 +505,7 @@ export const LandingPage: React.FC = () => {
 
 
       {/* 7. Community Reviews & Testimonials */}
-      <section id="reviews" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17]">
+      <section id="reviews" className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 bg-[#0B0D17] scroll-mt-16">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold">
