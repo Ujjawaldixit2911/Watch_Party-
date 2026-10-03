@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 import { Input } from '../components/ui/Input';
 import { toast } from 'sonner';
 
@@ -288,18 +289,8 @@ export const ProfilePage: React.FC = () => {
               Home
             </Link>
             <div className="h-4 w-[1px] bg-slate-800" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30">
-                <img
-                  src="/assets/3d_dj_logo.jpg"
-                  alt="WatchParty Logo"
-                  className="w-full h-full object-cover rounded-full"
-                />
-              </div>
-              <span className="text-sm font-bold tracking-tight font-heading text-white">
-                Watch<span className="text-purple-400">Party</span> Profile
-              </span>
-            </div>
+            <Logo size="sm" />
+            <span className="text-xs font-semibold text-slate-400">Profile</span>
           </div>
 
           <div className="flex items-center gap-3">

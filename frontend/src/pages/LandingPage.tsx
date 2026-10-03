@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 
 export const LandingPage: React.FC = () => {
   const { user, isAuthenticated, logout, reviews } = useAuth();
@@ -38,18 +39,12 @@ export const LandingPage: React.FC = () => {
       {/* 1. Header Navigation */}
       <header className="w-full border-b border-slate-800/80 bg-[#070913]/85 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo & Brand Tagline with 3D DJ Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-purple-500 via-indigo-500 to-pink-500 shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform flex-shrink-0">
-              <img
-                src="/assets/3d_dj_logo.jpg"
-                alt="WatchParty 3D DJ Logo"
-                className="w-full h-full object-cover rounded-full"
-              />
-            </div>
+          {/* Logo & Brand Tagline with stylish WP Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <Logo size="md" showText={false} />
             <div className="flex flex-col">
               <span className="text-lg font-extrabold tracking-tight font-heading text-white leading-none">
-                Watch<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Party</span>
+                Watch<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">Party</span>
               </span>
               <span className="text-[10px] font-semibold text-zinc-400 tracking-wider">
                 Real-Time Synchronized Streaming
@@ -569,17 +564,10 @@ export const LandingPage: React.FC = () => {
       <footer className="mt-auto border-t border-slate-800/80 bg-[#070913] py-10 px-4 sm:px-6 lg:px-8 text-xs text-zinc-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-purple-500 to-pink-500 shadow-md flex-shrink-0">
-              <img
-                src="/assets/3d_dj_logo.jpg"
-                alt="WatchParty Logo"
-                className="w-full h-full object-cover rounded-full"
-              />
-            </div>
-            <div>
-              <span className="font-bold text-zinc-200 font-heading">WatchParty</span>
-              <p className="text-[11px] text-zinc-500">Real-Time Synchronized Video & Music Streaming</p>
-            </div>
+            <Logo size="md" />
+            <p className="text-[11px] text-zinc-500 hidden sm:block border-l border-slate-800 pl-3">
+              Real-Time Synchronized Video & Music Streaming
+            </p>
           </div>
 
           <div className="flex items-center gap-6 text-xs text-zinc-400">

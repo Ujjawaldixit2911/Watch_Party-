@@ -14,6 +14,7 @@ import { checkRoomApi } from '../services/api';
 import { CheckRoomResponse } from '@watchparty/shared';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Logo } from '../components/ui/Logo';
 
 export const JoinRoomPage: React.FC = () => {
   const { roomCode: paramCode } = useParams<{ roomCode?: string }>();
@@ -107,12 +108,7 @@ export const JoinRoomPage: React.FC = () => {
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-md">
-            <img src="/assets/3d_dj_logo.jpg" alt="WatchParty" className="w-full h-full object-cover rounded-full" />
-          </div>
-          <span className="text-xs font-bold text-zinc-300 font-heading">WatchParty</span>
-        </div>
+        <Logo size="sm" />
       </div>
 
       <div className="w-full max-w-md bg-[#0F1222]/95 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 space-y-6 backdrop-blur-xl">

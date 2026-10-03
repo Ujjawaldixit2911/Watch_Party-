@@ -11,6 +11,7 @@ import {
 import { useRoom } from '../../context/RoomContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { Button } from '../ui/Button';
+import { Logo } from '../ui/Logo';
 import { ShareRoomModal } from '../Modals/ShareRoomModal';
 import { Modal } from '../ui/Modal';
 import { toast } from 'sonner';
@@ -54,25 +55,8 @@ export const RoomHeader: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           {/* Left: Brand Logo & Room Code Pill */}
           <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
-            <Link
-              to="/"
-              className="flex items-center gap-2 group flex-shrink-0"
-              title="WatchParty Home"
-            >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden p-0.5 bg-gradient-to-tr from-cyan-400 via-purple-500 to-pink-500 shadow-lg shadow-purple-600/20 group-hover:scale-105 transition-transform flex items-center justify-center">
-                <img
-                  src="/assets/3d_dj_logo.jpg"
-                  alt="WatchParty Logo"
-                  className="w-full h-full object-cover rounded-[10px]"
-                  onError={(e) => {
-                    // Fallback to text icon if image not available
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
-                />
-              </div>
-              <span className="font-bold text-sm sm:text-base tracking-tight text-white font-heading hidden sm:inline">
-                Watch<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">Party</span>
-              </span>
+            <Link to="/" className="flex-shrink-0" title="WatchParty Home">
+              <Logo size="sm" />
             </Link>
 
             {/* Room Code Badge */}

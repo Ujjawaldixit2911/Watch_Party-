@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Logo } from '../components/ui/Logo';
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 
 export const RegisterPage: React.FC = () => {
@@ -93,17 +94,8 @@ export const RegisterPage: React.FC = () => {
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30">
-            <img
-              src="/assets/3d_dj_logo.jpg"
-              alt="WatchParty Logo"
-              className="w-full h-full object-cover rounded-full"
-            />
-          </div>
-          <span className="text-xs font-bold tracking-tight font-heading text-white">
-            Watch<span className="text-purple-400">Party</span>
-          </span>
+        <Link to="/" title="WatchParty Home">
+          <Logo size="sm" />
         </Link>
       </div>
 
