@@ -252,15 +252,15 @@ export const LandingPage: React.FC = () => {
 
               {/* 3D Cyber DJ Character Stage */}
               <div className="space-y-4 animate-fade-in">
-                <div className="relative aspect-square sm:aspect-video rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-950 shadow-2xl group/dj">
+                <div className="relative h-[360px] sm:h-[440px] lg:h-[480px] w-full rounded-2xl overflow-hidden border border-purple-500/40 bg-slate-950 shadow-2xl group/dj">
                   <img
                     src="/assets/3d_dj_hero.jpg"
                     alt="3D Cyber DJ Host"
-                    className="w-full h-full object-cover object-center group-hover/dj:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover object-top group-hover/dj:scale-105 transition-transform duration-700"
                   />
 
                   {/* Holographic Glowing Overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#070913]/95 via-transparent to-black/30 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#070913]/95 via-transparent to-black/20 pointer-events-none" />
 
                   {/* Floating Top Status Badges */}
                   <div className="absolute top-3 left-3 flex items-center gap-2">
