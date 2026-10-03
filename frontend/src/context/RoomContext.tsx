@@ -394,12 +394,30 @@ export function RoomProvider({ children }: { children: ReactNode }) {
       requestId: string;
       decision: 'APPROVED' | 'REJECTED';
       resolvedBy: string;
+      request?: ControlRequest;
     }) => {
       dispatch({ type: 'RESOLVE_REQUEST', payload: { requestId: data.requestId } });
+
+      const isMyRequest = data.request?.requesterId === state.currentUser?.userId;
+
       if (data.decision === 'APPROVED') {
-        toast.success(`Request approved by ${data.resolvedBy}`);
+        if (isMyRequest) {
+          toast.success(
+            `🎉 Your ${data.request?.type ? data.request.type.toLowerCase().replace('_', ' ') : 'control'} request was approved by ${data.resolvedBy}!`,
+            { duration: 6000 }
+          );
+        } else if (state.currentUser?.role === 'HOST' || state.currentUser?.role === 'MODERATOR') {
+          toast.success(`Approved ${data.request?.requesterName || 'user'}'s request`);
+        }
       } else {
-        toast.error(`Request rejected by ${data.resolvedBy}`);
+        if (isMyRequest) {
+          toast.error(
+            `❌ Your ${data.request?.type ? data.request.type.toLowerCase().replace('_', ' ') : 'control'} request has been rejected by ${data.resolvedBy}.`,
+            { duration: 7000 }
+          );
+        } else if (state.currentUser?.role === 'HOST' || state.currentUser?.role === 'MODERATOR') {
+          toast.info(`Rejected request from ${data.request?.requesterName || 'user'}`);
+        }
       }
     };
 

@@ -130,13 +130,29 @@ export function registerRequestHandlers(
         }
       }
 
-      // Broadcast resolution
+      // Broadcast resolution to all participants
       io.to(room.roomCode).emit('control_request_resolved', {
         requestId,
         decision,
         resolvedBy: resolver.username,
         request,
       });
+
+      // Post system announcement in chat
+      const systemMessage = {
+        id: crypto.randomUUID(),
+        roomId: room.id,
+        userId: 'system',
+        username: 'System',
+        role: 'MODERATOR' as const,
+        content:
+          decision === 'APPROVED'
+            ? `✓ ${resolver.username} approved ${request.requesterName}'s ${request.type.toLowerCase().replace('_', ' ')} request.`
+            : `✕ ${resolver.username} rejected ${request.requesterName}'s ${request.type.toLowerCase().replace('_', ' ')} request.`,
+        timestamp: Date.now(),
+        isSystem: true,
+      };
+      io.to(room.roomCode).emit('message_received', systemMessage);
     } catch (error) {
       console.error('[Socket:resolve_control_request] error:', error);
     }
