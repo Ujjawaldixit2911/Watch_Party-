@@ -158,7 +158,6 @@ interface AuthContextType {
   login: (email: string, password?: string) => Promise<AuthResult>;
   register: (name: string, email: string, password?: string) => Promise<AuthResult>;
   loginWithGoogle: (credential: string | { name: string; email: string; avatar?: string }) => Promise<AuthResult>;
-  guestLogin: (name?: string) => void;
   logout: () => void;
   updateProfile: (updates: Partial<AuthUser>) => void;
   
@@ -172,10 +171,6 @@ interface AuthContextType {
   addJoinedRoom: (code: string, name?: string, hostName?: string) => void;
   removeJoinedRoom: (code: string) => void;
   clearJoinedHistory: () => void;
-
-  // Aliases for compatibility
-  savedRooms: SavedRoom[];
-  addSavedRoom: (code: string, name?: string) => void;
 
   reviews: ReviewItem[];
   submitReview: (stars: number, text: string) => void;
@@ -511,15 +506,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const guestLogin = (name?: string) => {
-    const demoName = name?.trim() || 'Alex Carter';
-    const demoEmail = 'alex@watchparty.live';
-    const demoPass = 'password123';
-
-    // Register or login guest
-    register(demoName, demoEmail, demoPass);
-  };
-
   const logout = () => {
     setUser(null);
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
@@ -704,11 +690,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     toast.info('Joined rooms history cleared.');
   };
 
-  // Compatibility alias
-  const addSavedRoom = (code: string, name?: string) => {
-    addCreatedRoom(code, name);
-  };
-
   const submitReview = (stars: number, text: string) => {
     const authorName = user?.name || 'Anonymous Listener';
     const newRev: ReviewItem = {
@@ -736,7 +717,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         login,
         register,
         loginWithGoogle,
-        guestLogin,
         logout,
         updateProfile,
         createdRooms: user?.createdRooms || [],
@@ -746,8 +726,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         addJoinedRoom,
         removeJoinedRoom,
         clearJoinedHistory,
-        savedRooms: user?.createdRooms || [],
-        addSavedRoom,
         reviews,
         submitReview,
         lockerSongs,

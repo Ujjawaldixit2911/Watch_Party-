@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 
 export const CreateRoomPage: React.FC = () => {
   const { createRoom, sendChangeVideo } = useRoom();
-  const { user, isAuthenticated, addSavedRoom } = useAuth();
+  const { user, isAuthenticated, addCreatedRoom } = useAuth();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState(user?.name || '');
@@ -122,7 +122,7 @@ export const CreateRoomPage: React.FC = () => {
       const code = await createRoom(hostName, roomName.trim() || undefined);
       if (code) {
         setCreatedRoomCode(code);
-        addSavedRoom(code, roomName.trim() || `${hostName}'s Watch Party`);
+        addCreatedRoom(code, roomName.trim() || `${hostName}'s Watch Party`);
 
         // If custom or selected starting song is different, queue it
         const chosenSong = useCustomVideo && customVideoId.trim() ? customVideoId.trim() : selectedStarterSong;
