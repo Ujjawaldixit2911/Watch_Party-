@@ -31,7 +31,13 @@ async function bootstrap() {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV === 'development' || env.CLIENT_URL === '*') {
+        if (
+          !origin ||
+          allowedOrigins.includes(origin) ||
+          origin.endsWith('.onrender.com') ||
+          env.NODE_ENV === 'development' ||
+          env.CLIENT_URL === '*'
+        ) {
           callback(null, true);
         } else {
           callback(new Error(`Blocked by CORS: ${origin}`));
